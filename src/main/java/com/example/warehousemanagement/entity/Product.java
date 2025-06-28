@@ -58,5 +58,14 @@ public class Product {
         updatedAt = LocalDateTime.now();
     }
 
+    @OneToOne
+    @JoinColumn(name = "barcode_id")
+    private Barcode barcode;
+
+    @OneToOne
+    @JoinColumn(name = "qrcode_id")
+    private QrCode qrCode;
+
+
 }
 

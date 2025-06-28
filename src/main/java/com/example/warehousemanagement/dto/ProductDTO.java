@@ -19,4 +19,7 @@ public class ProductDTO {
     private String updatedBy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private Long barcodeId;     // Related barcode
+    private Long qrCodeId;      // Related QR code
 }
