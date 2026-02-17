@@ -1,5 +1,6 @@
 package com.example.warehousemanagement.dto;
 
+import com.example.warehousemanagement.entity.enums.ShippingMethod;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -20,7 +21,7 @@ public class ShipmentDTO {
     private DeliveryReceiptDTO deliveryReceipt;  // associated delivery receipt (DTO)
     private LocalDateTime estimatedArrivalDate;
     private Double shipmentCost;
-    private String shippingMethod;               // shippingMethod as String
+    private ShippingMethod shippingMethod;               // shippingMethod as enum
     private String shippingMethodDescription;
     private String barcode;                      // classic barcode string
     private String qrCode;                       // QR code string

@@ -15,5 +15,5 @@ public interface QrCodeMapper {
 
     @Mapping(source = "productId", target = "product.id")
     @Mapping(source = "packageId", target = "pkg.id")
-    QrCode qrCodeToQrCodeEntity(QrCodeDTO dto);
+    QrCode qrCodeDTOToQrCodeEntity(QrCodeDTO dto);
 }

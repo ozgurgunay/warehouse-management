@@ -1,5 +1,6 @@
 package com.example.warehousemanagement.dto;
 
+import com.example.warehousemanagement.entity.enums.PackageType;
 import lombok.Data;
 
 import java.util.List;
@@ -12,7 +13,7 @@ public class WarehousePackageDTO {
     private Long barcodeId;               // Reference to Barcode
     private Long qrCodeId;                // Reference to QrCode
     private Double weight;                // Package weight (kg)
-    private String packageType;           // PackageType as String (enum value)
+    private PackageType packageType;           // PackageType as enum value
     private List<PackageItemDTO> items;   // List of package items (DTO)
 
 }

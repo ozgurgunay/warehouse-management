@@ -12,5 +12,5 @@ public interface ShipmentMapper {
     ShipmentDTO shipmentToShipmentDTO(Shipment entity);
 
     @Mapping(source = "orderId", target = "order.id")
-    Shipment shipmentToShipmentEntity(ShipmentDTO dto);
+    Shipment shipmentDTOToShipment(ShipmentDTO dto);
 }
