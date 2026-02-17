@@ -60,7 +60,7 @@ public class CustomerService {
      */
     public CustomerDTO updateCustomer(Long id, CustomerDTO dto) {
         return customerRepository.findById(id).map(existing -> {
-            existing.setFullName(dto.setFullName(););
+            existing.setFullName(dto.getFullName());
             existing.setEmail(dto.getEmail());
             existing.setPhone(dto.getPhone());
             existing.setAddress(dto.getAddress());
