@@ -5,6 +5,7 @@ import com.example.warehousemanagement.entity.Inventory;
 import com.example.warehousemanagement.entity.Product;
 import com.example.warehousemanagement.entity.StorageLocation;
 import com.example.warehousemanagement.entity.Warehouse;
+import com.example.warehousemanagement.entity.enums.InventoryStatus;
 import com.example.warehousemanagement.mapper.InventoryMapper;
 import com.example.warehousemanagement.repository.InventoryRepository;
 import com.example.warehousemanagement.repository.ProductRepository;
@@ -12,8 +13,10 @@ import com.example.warehousemanagement.repository.StorageLocationRepository;
 import com.example.warehousemanagement.repository.WarehouseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -123,6 +126,89 @@ public class InventoryService {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Stok durumunu değiştirir. (Örn: Sağlam -> Hasarlı)
+     * Eğer miktar kısmi ise (100 taneden 5'i hasarlıysa), mevcut kaydı bölerek yeni kayıt oluşturur.
+     */
+    @Transactional
+    public void changeInventoryStatus(Long inventoryId, int amountToMove, InventoryStatus targetStatus) {
+        // 1. Kaynak Stoku Bul
+        Inventory sourceInventory = inventoryRepository.findById(inventoryId)
+                .orElseThrow(() -> new RuntimeException("Inventory not found: " + inventoryId));
+
+        // 2. Validasyonlar
+        validateStatusChange(sourceInventory, amountToMove, targetStatus);
+
+        // 3. Kaynaktan Düş
+        sourceInventory.setQuantity(sourceInventory.getQuantity() - amountToMove);
+        inventoryRepository.save(sourceInventory);
+
+        // 4. Hedefe Ekle (Refactored Method)
+        addStockToStatus(sourceInventory, amountToMove, targetStatus);
+    }
+
+    // --- Yardımcı (Extracted) Metotlar ---
+
+    /**
+     * Hedef statüye stok ekler.
+     * Eğer o statüde ve özelliklerde halihazırda bir kayıt varsa üzerine ekler (MERGE),
+     * yoksa yeni kayıt oluşturur (CREATE).
+     */
+    private void addStockToStatus(Inventory source, int amount, InventoryStatus status) {
+
+        Long locationId = (source.getStorageLocation() != null) ? source.getStorageLocation().getId() : null;
+
+        // Veritabanında bu özelliklere sahip (ama hedef statüde) bir kayıt var mı?
+        Optional<Inventory> existingInventory = inventoryRepository.findExistingInventory(
+                source.getProduct().getId(),
+                source.getWarehouse().getId(),
+                locationId,
+                source.getBatchNumber(),
+                source.getExpiryDate(),
+                status // Yeni statü
+        );
+
+        if (existingInventory.isPresent()) {
+            // VARSA: Miktarı artır
+            Inventory target = existingInventory.get();
+            target.setQuantity(target.getQuantity() + amount);
+            inventoryRepository.save(target);
+        } else {
+            // YOKSA: Yeni kayıt oluştur (Clone Logic)
+            createTargetInventory(source, amount, status);
+        }
+    }
+
+    // Sadece yeni obje oluşturma işini yapan saf metot
+    private void createTargetInventory(Inventory source, int amount, InventoryStatus status) {
+        Inventory target = new Inventory();
+        target.setProduct(source.getProduct());
+        target.setWarehouse(source.getWarehouse());
+        target.setStorageLocation(source.getStorageLocation());
+        target.setBatchNumber(source.getBatchNumber());
+        target.setExpiryDate(source.getExpiryDate());
+
+        target.setQuantity(amount);
+        target.setStatus(status);
+
+        inventoryRepository.save(target);
+    }
+
+    private void validateStatusChange(Inventory source, int amount, InventoryStatus targetStatus) {
+        if (source.getStatus() == targetStatus) {
+            throw new RuntimeException("Hedef statü mevcut statü ile aynı olamaz.");
+        }
+        if (source.getQuantity() < amount) {
+            throw new RuntimeException("Yetersiz stok!");
+        }
+    }
+
+    // Satılabilir stok kontrolü
+    public boolean checkStockAvailability(Long productId, Long warehouseId, int requestedAmount) {
+        Integer availableStock = inventoryRepository.findAvailableStock(productId, warehouseId);
+        return availableStock >= requestedAmount;
     }
 
 }

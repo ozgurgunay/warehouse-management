@@ -1,7 +1,9 @@
 package com.example.warehousemanagement.controller;
 
 import com.example.warehousemanagement.dto.InventoryDTO;
+import com.example.warehousemanagement.dto.InventoryStatusChangeRequestDTO;
 import com.example.warehousemanagement.service.InventoryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,4 +54,18 @@ public class InventoryController {
         return deleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
+    @PatchMapping("/status")
+    public ResponseEntity<Void> changeInventoryStatus(@Valid @RequestBody InventoryStatusChangeRequestDTO request) {
+
+        inventoryService.changeInventoryStatus(
+                request.getInventoryId(),
+                request.getAmount(),
+                request.getTargetStatus()
+        );
+
+        // successful  (200 OK)
+        return ResponseEntity.ok().build();
+    }
+
 }

@@ -12,4 +12,6 @@ public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
     List<Shipment> findByOrderId(Long orderId);
     Shipment findByTrackingNumber(String trackingNumber);
 
+    Shipment findByBarcode(String barcode);
+    Shipment findByQrCode(String qrCode);
 }

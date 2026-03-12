@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 @Data
-public class AllocationRequestDTO {
+public class InventoryAllocationRequestDTO {
 
     @NotNull(message = "Sipariş ID boş olamaz.")
     private Long orderId;
