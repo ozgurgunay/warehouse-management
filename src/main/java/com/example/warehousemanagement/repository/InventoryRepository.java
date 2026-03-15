@@ -14,8 +14,8 @@ import java.util.Optional;
 @Repository
 public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 
-    // MİMARİ DÜZELTME: i.status = 'AVAILABLE' yerine i.status = :status kullanıldı.
-    // @Param anotasyonları eklenerek değişken eşleşmeleri garanti altına alındı.
+    // Architectural note: Status is compared via parameter binding instead of hard coded string.
+    // @Param annotations guarantee parameter-name binding.
     @Query("SELECT i FROM Inventory i WHERE i.product.id = :productId " +
             "AND i.warehouse.id = :warehouseId " +
             "AND (:locationId IS NULL OR i.storageLocation.id = :locationId) " +
@@ -31,19 +31,20 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
             @Param("status") InventoryStatus status
     );
 
-    // MİMARİ ÇÖZÜM (Hatanın Sebebi): Spring'in kolon araması engellendi, özel sorgu yazıldı.
-    // Kullanılabilir Stok = Toplam Fiziksel Stok (quantity) - Rezerve Edilmiş Stok (quantityAllocated)
-    @Query("SELECT COALESCE(SUM(i.quantity - i.quantityAllocated), 0) FROM Inventory i " +
+    // Architectural note: Available stock is calculated explicitly to avoid column name ambiguity.
+    // Available stock = Physical stock (quantity) - Reserved stock (quantityAllocated)
+    @Query("SELECT COALESCE(SUM(i.quantity - COALESCE(i.quantityAllocated, 0)), 0) FROM Inventory i " +
             "WHERE i.product.id = :productId " +
             "AND i.warehouse.id = :warehouseId " +
-            "AND i.status = 'AVAILABLE'")
+            "AND i.status = :status")
     Integer findAvailableStock(
             @Param("productId") Long productId,
-            @Param("warehouseId") Long warehouseId
+            @Param("warehouseId") Long warehouseId,
+            @Param("status") InventoryStatus status
     );
 
-    // Spring Data JPA bu metodu isminden otomatik anlar (findBy...And...And...).
-    // Bu yüzden üzerine @Query yazmaya gerek yoktur, hatasız çalışır.
+    // Spring Data JPA understands this method from its name (findBy...And...And...),
+    // so there is no need for a custom @Query definition here.
     List<Inventory> findByProductIdAndWarehouseIdAndStatus(Long productId, Long warehouseId, InventoryStatus status);
 
     /**

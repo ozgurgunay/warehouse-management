@@ -4,6 +4,7 @@ import com.example.warehousemanagement.dto.StorageLocationDTO;
 import com.example.warehousemanagement.entity.StorageLocation;
 import com.example.warehousemanagement.mapper.StorageLocationMapper;
 import com.example.warehousemanagement.repository.StorageLocationRepository;
+import com.example.warehousemanagement.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +34,7 @@ public class StorageLocationService {
     public StorageLocationDTO getStorageLocationById(Long id) {
         return storageLocationRepository.findById(id)
                 .map(storageLocationMapper::storageLocationToStorageLocationDTO)
-                .orElse(null);
+                .orElseThrow(() -> new NotFoundException("Storage location not found with id: " + id));
     }
 
     public List<StorageLocationDTO> getAllStorageLocations() {
@@ -50,15 +51,14 @@ public class StorageLocationService {
             existing.setSection(dto.getSection());
             StorageLocation updated = storageLocationRepository.save(existing);
             return storageLocationMapper.storageLocationToStorageLocationDTO(updated);
-        }).orElse(null);
+        }).orElseThrow(() -> new NotFoundException("Storage location not found with id: " + id));
     }
 
-    public boolean deleteStorageLocation(Long id) {
-        if (storageLocationRepository.existsById(id)) {
-            storageLocationRepository.deleteById(id);
-            return true;
+    public void deleteStorageLocation(Long id) {
+        if (!storageLocationRepository.existsById(id)) {
+            throw new NotFoundException("Storage location not found with id: " + id);
         }
-        return false;
+        storageLocationRepository.deleteById(id);
     }
 
 }

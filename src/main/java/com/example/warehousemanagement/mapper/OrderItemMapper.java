@@ -13,8 +13,8 @@ public interface OrderItemMapper {
     @Mapping(source = "product.id", target = "productId")
     OrderItemDTO orderItemToOrderItemDTO(OrderItem entity);
 
-    @Mapping(source = "orderId", target = "order.id")
-    @Mapping(source = "productId", target = "product.id")
+    @Mapping(target = "order", ignore = true)
+    @Mapping(target = "product", ignore = true)
     OrderItem orderItemDTOToOrderItem(OrderItemDTO dto);
 
 }

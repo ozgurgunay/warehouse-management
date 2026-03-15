@@ -5,6 +5,7 @@ import com.example.warehousemanagement.dto.RoleDTO;
 import com.example.warehousemanagement.entity.Role;
 import com.example.warehousemanagement.mapper.RoleMapper;
 import com.example.warehousemanagement.repository.RoleRepository;
+import com.example.warehousemanagement.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +33,7 @@ public class RoleService {
     public RoleDTO getRoleById(Long id) {
         return roleRepository.findById(id)
                 .map(roleMapper::roleToRoleDTO)
-                .orElse(null);
+                .orElseThrow(() -> new NotFoundException("Role not found with id: " + id));
     }
 
     public List<RoleDTO> getAllRoles() {
@@ -47,15 +48,14 @@ public class RoleService {
             existing.setDescription(dto.getDescription());
             Role updated = roleRepository.save(existing);
             return roleMapper.roleToRoleDTO(updated);
-        }).orElse(null);
+        }).orElseThrow(() -> new NotFoundException("Role not found with id: " + id));
     }
 
-    public boolean deleteRole(Long id) {
-        if(roleRepository.existsById(id)){
-            roleRepository.deleteById(id);
-            return true;
+    public void deleteRole(Long id) {
+        if(!roleRepository.existsById(id)){
+            throw new NotFoundException("Role not found with id: " + id);
         }
-        return false;
+        roleRepository.deleteById(id);
     }
 
 

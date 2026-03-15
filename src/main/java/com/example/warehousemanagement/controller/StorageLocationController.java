@@ -43,15 +43,13 @@ public class StorageLocationController {
     @PutMapping("/{id}")
     public ResponseEntity<StorageLocationDTO> updateStorageLocation(@PathVariable Long id, @RequestBody StorageLocationDTO dto) {
         StorageLocationDTO updated = storageLocationService.updateStorageLocation(id, dto);
-        return updated != null ? new ResponseEntity<>(updated, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStorageLocation(@PathVariable Long id) {
-        boolean deleted = storageLocationService.deleteStorageLocation(id);
-        return deleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        storageLocationService.deleteStorageLocation(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 

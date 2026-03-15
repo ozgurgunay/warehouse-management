@@ -1,6 +1,7 @@
 package com.example.warehousemanagement.repository;
 
 import com.example.warehousemanagement.entity.InventoryAllocation;
+import com.example.warehousemanagement.entity.enums.AllocationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,6 +18,12 @@ public interface InventoryAllocationRepository extends JpaRepository<InventoryAl
     List<InventoryAllocation> findByOrderId(Long orderId);
 
     /**
+     * Finds ACTIVE allocations for a specific order.
+     * This is used when consuming or releasing reservations.
+     */
+    List<InventoryAllocation> findByOrderIdAndStatus(Long orderId, AllocationStatus status);
+
+    /**
      * Finds all allocations associated with a specific inventory row.
      */
     List<InventoryAllocation> findByInventoryId(Long inventoryId);
@@ -26,6 +33,5 @@ public interface InventoryAllocationRepository extends JpaRepository<InventoryAl
      * Useful for a scheduled Cron Job to release unpaid reserved stock.
      */
     List<InventoryAllocation> findByExpirationTimeBefore(LocalDateTime currentTime);
-
 
 }

@@ -6,12 +6,16 @@ import com.example.warehousemanagement.entity.Product;
 import com.example.warehousemanagement.entity.StorageLocation;
 import com.example.warehousemanagement.entity.Warehouse;
 import com.example.warehousemanagement.entity.enums.InventoryStatus;
+import com.example.warehousemanagement.exception.InsufficientStockException;
+import com.example.warehousemanagement.exception.NotFoundException;
 import com.example.warehousemanagement.mapper.InventoryMapper;
 import com.example.warehousemanagement.repository.InventoryRepository;
 import com.example.warehousemanagement.repository.ProductRepository;
 import com.example.warehousemanagement.repository.StorageLocationRepository;
 import com.example.warehousemanagement.repository.WarehouseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,25 +47,25 @@ public class InventoryService {
         // Set associated Product
         if (dto.getProductId() != null) {
             Product product = productRepository.findById(dto.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Product not found with id: " + dto.getProductId()));
+                    .orElseThrow(() -> new NotFoundException("Product not found with id: " + dto.getProductId()));
             inventory.setProduct(product);
         } else {
-            throw new RuntimeException("Product ID is required");
+            throw new IllegalArgumentException("Product ID is required");
         }
 
         // Set associated Warehouse
         if (dto.getWarehouseId() != null) {
             Warehouse warehouse = warehouseRepository.findById(dto.getWarehouseId())
-                    .orElseThrow(() -> new RuntimeException("Warehouse not found with id: " + dto.getWarehouseId()));
+                    .orElseThrow(() -> new NotFoundException("Warehouse not found with id: " + dto.getWarehouseId()));
             inventory.setWarehouse(warehouse);
         } else {
-            throw new RuntimeException("Warehouse ID is required");
+            throw new IllegalArgumentException("Warehouse ID is required");
         }
 
         // Set associated StorageLocation (optional)
         if (dto.getStorageLocationId() != null) {
             StorageLocation location = storageLocationRepository.findById(dto.getStorageLocationId())
-                    .orElseThrow(() -> new RuntimeException("StorageLocation not found with id: " + dto.getStorageLocationId()));
+                    .orElseThrow(() -> new NotFoundException("StorageLocation not found with id: " + dto.getStorageLocationId()));
             inventory.setStorageLocation(location);
         }
 
@@ -73,11 +77,42 @@ public class InventoryService {
     public InventoryDTO getInventoryById(Long id) {
         return inventoryRepository.findById(id)
                 .map(inventoryMapper::inventoryToInventoryDTO)
-                .orElse(null);
+                .orElseThrow(() -> new NotFoundException("Inventory not found with id: " + id));
     }
 
     public List<InventoryDTO> getAllInventories() {
         return inventoryRepository.findAll().stream()
+                .map(inventoryMapper::inventoryToInventoryDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Returns paginated inventories with optional filtering by product, warehouse and status.
+     */
+    public List<InventoryDTO> getInventories(Long productId,
+                                             Long warehouseId,
+                                             InventoryStatus status,
+                                             int page,
+                                             int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        // If we have an exact repository method that matches all filters, use it and then page manually.
+        if (productId != null && warehouseId != null && status != null) {
+            return inventoryRepository
+                    .findByProductIdAndWarehouseIdAndStatus(productId, warehouseId, status).stream()
+                    .skip((long) page * size)
+                    .limit(size)
+                    .map(inventoryMapper::inventoryToInventoryDTO)
+                    .collect(Collectors.toList());
+        }
+
+        // Otherwise, fetch a page and apply remaining filters in memory.
+        return inventoryRepository.findAll(pageable)
+                .map(inv -> inv)
+                .stream()
+                .filter(inv -> productId == null || inv.getProduct().getId().equals(productId))
+                .filter(inv -> warehouseId == null || inv.getWarehouse().getId().equals(warehouseId))
+                .filter(inv -> status == null || inv.getStatus() == status)
                 .map(inventoryMapper::inventoryToInventoryDTO)
                 .collect(Collectors.toList());
     }
@@ -93,21 +128,21 @@ public class InventoryService {
             // update associated Product if productId is provided
             if (dto.getProductId() != null) {
                 Product product = productRepository.findById(dto.getProductId())
-                        .orElseThrow(() -> new RuntimeException("Product not found with id: " + dto.getProductId()));
+                        .orElseThrow(() -> new NotFoundException("Product not found with id: " + dto.getProductId()));
                 existing.setProduct(product);
             }
 
             // update associated Warehouse if warehouseId is provided
             if (dto.getWarehouseId() != null) {
                 Warehouse warehouse = warehouseRepository.findById(dto.getWarehouseId())
-                        .orElseThrow(() -> new RuntimeException("Warehouse not found with id: " + dto.getWarehouseId()));
+                        .orElseThrow(() -> new NotFoundException("Warehouse not found with id: " + dto.getWarehouseId()));
                 existing.setWarehouse(warehouse);
             }
 
             // update storageLocation
             if (dto.getStorageLocationId() != null) {
                 StorageLocation location = storageLocationRepository.findById(dto.getStorageLocationId())
-                        .orElseThrow(() -> new RuntimeException("StorageLocation not found with id: " + dto.getStorageLocationId()));
+                        .orElseThrow(() -> new NotFoundException("StorageLocation not found with id: " + dto.getStorageLocationId()));
                 existing.setStorageLocation(location);
             } else {
                 // Optionally set to null if not provided
@@ -117,50 +152,49 @@ public class InventoryService {
 
             Inventory updated = inventoryRepository.save(existing);
             return inventoryMapper.inventoryToInventoryDTO(updated);
-        }).orElse(null);
+        }).orElseThrow(() -> new NotFoundException("Inventory not found with id: " + id));
     }
 
-    public boolean deleteInventory(Long id) {
-        if (inventoryRepository.existsById(id)) {
-            inventoryRepository.deleteById(id);
-            return true;
+    public void deleteInventory(Long id) {
+        if (!inventoryRepository.existsById(id)) {
+            throw new NotFoundException("Inventory not found with id: " + id);
         }
-        return false;
+        inventoryRepository.deleteById(id);
     }
 
     /**
-     * Stok durumunu değiştirir. (Örn: Sağlam -> Hasarlı)
-     * Eğer miktar kısmi ise (100 taneden 5'i hasarlıysa), mevcut kaydı bölerek yeni kayıt oluşturur.
+     * Changes the status of a stock record (for example: AVAILABLE -> DAMAGED).
+     * If the amount is partial (for example, 5 out of 100 become damaged), the existing record is split by creating or merging a target record.
      */
     @Transactional
     public void changeInventoryStatus(Long inventoryId, int amountToMove, InventoryStatus targetStatus) {
-        // 1. Kaynak Stoku Bul
+        // 1. Find source inventory
         Inventory sourceInventory = inventoryRepository.findById(inventoryId)
-                .orElseThrow(() -> new RuntimeException("Inventory not found: " + inventoryId));
+                .orElseThrow(() -> new NotFoundException("Inventory not found with id: " + inventoryId));
 
-        // 2. Validasyonlar
+        // 2. Validations
         validateStatusChange(sourceInventory, amountToMove, targetStatus);
 
-        // 3. Kaynaktan Düş
+        // 3. Decrease quantity from source
         sourceInventory.setQuantity(sourceInventory.getQuantity() - amountToMove);
         inventoryRepository.save(sourceInventory);
 
-        // 4. Hedefe Ekle (Refactored Method)
+        // 4. Add stock to target status (refactored method)
         addStockToStatus(sourceInventory, amountToMove, targetStatus);
     }
 
-    // --- Yardımcı (Extracted) Metotlar ---
+    // --- Helper (extracted) methods ---
 
     /**
-     * Hedef statüye stok ekler.
-     * Eğer o statüde ve özelliklerde halihazırda bir kayıt varsa üzerine ekler (MERGE),
-     * yoksa yeni kayıt oluşturur (CREATE).
+     * Adds stock to the target status.
+     * If a record with the same attributes and target status already exists it will be merged,
+     * otherwise a new inventory row will be created.
      */
     private void addStockToStatus(Inventory source, int amount, InventoryStatus status) {
 
         Long locationId = (source.getStorageLocation() != null) ? source.getStorageLocation().getId() : null;
 
-        // Veritabanında bu özelliklere sahip (ama hedef statüde) bir kayıt var mı?
+        // Check if there is already a row in the database with the same attributes and target status.
         Optional<Inventory> existingInventory = inventoryRepository.findExistingInventory(
                 source.getProduct().getId(),
                 source.getWarehouse().getId(),
@@ -171,17 +205,17 @@ public class InventoryService {
         );
 
         if (existingInventory.isPresent()) {
-            // VARSA: Miktarı artır
+            // If found: increase quantity
             Inventory target = existingInventory.get();
             target.setQuantity(target.getQuantity() + amount);
             inventoryRepository.save(target);
         } else {
-            // YOKSA: Yeni kayıt oluştur (Clone Logic)
+            // If not found: create a new row (clone logic)
             createTargetInventory(source, amount, status);
         }
     }
 
-    // Sadece yeni obje oluşturma işini yapan saf metot
+    // Method responsible only for creating and persisting the new inventory row
     private void createTargetInventory(Inventory source, int amount, InventoryStatus status) {
         Inventory target = new Inventory();
         target.setProduct(source.getProduct());
@@ -198,16 +232,23 @@ public class InventoryService {
 
     private void validateStatusChange(Inventory source, int amount, InventoryStatus targetStatus) {
         if (source.getStatus() == targetStatus) {
-            throw new RuntimeException("Hedef statü mevcut statü ile aynı olamaz.");
+            throw new IllegalArgumentException("Target status cannot be the same as current status.");
         }
-        if (source.getQuantity() < amount) {
-            throw new RuntimeException("Yetersiz stok!");
+        int allocated = source.getQuantityAllocated() != null ? source.getQuantityAllocated() : 0;
+        int availableForStatusChange = source.getQuantity() - allocated;
+        if (availableForStatusChange < amount) {
+            throw new InsufficientStockException("Not enough unallocated stock to change status. " +
+                    "Available for status change: " + availableForStatusChange + ", requested: " + amount);
         }
     }
 
-    // Satılabilir stok kontrolü
+    // Checks if there is enough sellable stock for the given product and warehouse.
     public boolean checkStockAvailability(Long productId, Long warehouseId, int requestedAmount) {
-        Integer availableStock = inventoryRepository.findAvailableStock(productId, warehouseId);
+        Integer availableStock = inventoryRepository.findAvailableStock(
+                productId,
+                warehouseId,
+                InventoryStatus.AVAILABLE
+        );
         return availableStock >= requestedAmount;
     }
 

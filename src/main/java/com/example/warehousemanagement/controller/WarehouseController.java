@@ -29,8 +29,7 @@ public class WarehouseController {
     @GetMapping("/{id}")
     public ResponseEntity<WarehouseDTO> getWarehouseById(@PathVariable Long id) {
         WarehouseDTO dto = warehouseService.getWarehouseById(id);
-        return dto != null ? new ResponseEntity<>(dto, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
     @GetMapping
@@ -42,15 +41,13 @@ public class WarehouseController {
     @PutMapping("/{id}")
     public ResponseEntity<WarehouseDTO> updateWarehouse(@PathVariable Long id, @RequestBody WarehouseDTO dto) {
         WarehouseDTO updated = warehouseService.updateWarehouse(id, dto);
-        return updated != null ? new ResponseEntity<>(updated, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteWarehouse(@PathVariable Long id) {
-        boolean deleted = warehouseService.deleteWarehouse(id);
-        return deleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        warehouseService.deleteWarehouse(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 

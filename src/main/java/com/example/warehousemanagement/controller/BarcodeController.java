@@ -34,28 +34,26 @@ public class BarcodeController {
 
     @GetMapping("/{id}")
     public ResponseEntity<BarcodeDTO> getBarcodeById(@PathVariable Long id) {
+        // In a real-world scenario, a dedicated service method should fetch by ID.
         BarcodeDTO dto = barcodeService.getAllBarcodes().stream()
                 .filter(b -> b.getId().equals(id))
                 .findFirst()
-                .orElse(null);
-        if (dto != null) return ResponseEntity.ok(dto);
-        return ResponseEntity.notFound().build();
+                .orElseThrow(() -> new com.example.warehousemanagement.exception.NotFoundException("Barcode not found with id: " + id));
+        return ResponseEntity.ok(dto);
     }
 
 
     @GetMapping("/find")
     public ResponseEntity<BarcodeDTO> getByCode(@RequestParam String code) {
         BarcodeDTO dto = barcodeService.getBarcodeByCode(code);
-        if (dto != null) return ResponseEntity.ok(dto);
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(dto);
     }
 
 
     @PutMapping("/{id}")
     public ResponseEntity<BarcodeDTO> updateBarcode(@PathVariable Long id, @RequestBody BarcodeDTO dto) {
         BarcodeDTO updated = barcodeService.updateBarcode(id, dto);
-        if (updated != null) return ResponseEntity.ok(updated);
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(updated);
     }
 
 
@@ -63,7 +61,7 @@ public class BarcodeController {
     public ResponseEntity<Void> deleteBarcode(@PathVariable Long id) {
         boolean deleted = barcodeService.deleteBarcode(id);
         if (deleted) return ResponseEntity.noContent().build();
-        return ResponseEntity.notFound().build();
+        throw new com.example.warehousemanagement.exception.NotFoundException("Barcode not found with id: " + id);
     }
 
 

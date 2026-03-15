@@ -2,6 +2,7 @@ package com.example.warehousemanagement.controller;
 
 import com.example.warehousemanagement.dto.InventoryDTO;
 import com.example.warehousemanagement.dto.InventoryStatusChangeRequestDTO;
+import com.example.warehousemanagement.entity.enums.InventoryStatus;
 import com.example.warehousemanagement.service.InventoryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class InventoryController {
     }
 
     @PostMapping
-    public ResponseEntity<InventoryDTO> createInventory(@RequestBody InventoryDTO dto) {
+    public ResponseEntity<InventoryDTO> createInventory(@Valid @RequestBody InventoryDTO dto) {
         InventoryDTO created = inventoryService.createInventory(dto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
@@ -31,28 +32,32 @@ public class InventoryController {
     @GetMapping("/{id}")
     public ResponseEntity<InventoryDTO> getInventoryById(@PathVariable Long id) {
         InventoryDTO dto = inventoryService.getInventoryById(id);
-        return dto != null ? new ResponseEntity<>(dto, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
     @GetMapping
-    public ResponseEntity<List<InventoryDTO>> getAllInventories() {
-        List<InventoryDTO> inventoryDTOS = inventoryService.getAllInventories();
+    public ResponseEntity<List<InventoryDTO>> getAllInventories(
+            @RequestParam(required = false) Long productId,
+            @RequestParam(required = false) Long warehouseId,
+            @RequestParam(required = false) InventoryStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        List<InventoryDTO> inventoryDTOS =
+                inventoryService.getInventories(productId, warehouseId, status, page, size);
         return new ResponseEntity<>(inventoryDTOS, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<InventoryDTO> updateInventory(@PathVariable Long id, @RequestBody InventoryDTO dto) {
+    public ResponseEntity<InventoryDTO> updateInventory(@PathVariable Long id, @Valid @RequestBody InventoryDTO dto) {
         InventoryDTO updated = inventoryService.updateInventory(id, dto);
-        return updated != null ? new ResponseEntity<>(updated, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteInventory(@PathVariable Long id) {
-        boolean deleted = inventoryService.deleteInventory(id);
-        return deleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        inventoryService.deleteInventory(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PatchMapping("/status")

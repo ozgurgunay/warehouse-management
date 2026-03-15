@@ -4,6 +4,7 @@ package com.example.warehousemanagement.controller;
 import com.example.warehousemanagement.dto.OrderDTO;
 import com.example.warehousemanagement.entity.enums.OrderStatus;
 import com.example.warehousemanagement.service.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,18 +21,22 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-
     // Create a new order
     @PostMapping
-    public ResponseEntity<OrderDTO> createOrder(@RequestBody OrderDTO orderDTO) {
+    public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody OrderDTO orderDTO) {
         OrderDTO created = orderService.createOrder(orderDTO);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
-    // Get all orders (optionally by customerId, future: paging/filtering)
+    // Get all orders with optional filters and pagination
     @GetMapping
-    public ResponseEntity<List<OrderDTO>> getAllOrders() {
-        List<OrderDTO> orders = orderService.getAllOrders();
+    public ResponseEntity<List<OrderDTO>> getAllOrders(
+            @RequestParam(required = false) OrderStatus status,
+            @RequestParam(required = false) Long customerId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        List<OrderDTO> orders = orderService.getOrders(status, customerId, page, size);
         return ResponseEntity.ok(orders);
     }
 
@@ -39,29 +44,20 @@ public class OrderController {
     @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
         OrderDTO order = orderService.getOrderById(id);
-        if (order == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(order);
     }
 
-    // Update an order (future: partial update/PATCH ile geliştirilebilir)
+    // Update an order (future: can be extended with partial update/PATCH)
     @PutMapping("/{id}")
-    public ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id, @RequestBody OrderDTO orderDTO) {
+    public ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id, @Valid @RequestBody OrderDTO orderDTO) {
         OrderDTO updated = orderService.updateOrder(id, orderDTO);
-        if (updated == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(updated);
     }
 
     // Delete an order
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
-        boolean deleted = orderService.deleteOrder(id);
-        if (!deleted) {
-            return ResponseEntity.notFound().build();
-        }
+        orderService.deleteOrder(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -71,9 +67,6 @@ public class OrderController {
             @PathVariable Long id,
             @RequestParam OrderStatus status) {
         OrderDTO updated = orderService.updateOrderStatus(id, status);
-        if (updated == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(updated);
     }
 

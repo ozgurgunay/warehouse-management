@@ -1,7 +1,9 @@
 package com.example.warehousemanagement.controller;
 
 import com.example.warehousemanagement.dto.UserDTO;
+import com.example.warehousemanagement.dto.UserRegistrationRequest;
 import com.example.warehousemanagement.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,20 +23,20 @@ public class UserController {
         this.userService = userService;
     }
 
-    // Registration endpoint. Accepts user details, raw password, and a set of role IDs.
+    // Registration endpoint. Accepts a registration request containing user details, raw password, and a set of role IDs.
     @PostMapping("/register")
-    public ResponseEntity<UserDTO> registerUser(@RequestBody UserDTO userDTO,
-                                                @RequestParam String password,
-                                                @RequestParam Set<Long> roleIds) {
-        UserDTO created = userService.createUser(userDTO, password, roleIds);
+    public ResponseEntity<UserDTO> registerUser(@Valid @RequestBody UserRegistrationRequest request) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername(request.getUsername());
+        userDTO.setEmail(request.getEmail());
+        UserDTO created = userService.createUser(userDTO, request.getPassword(), request.getRoleIds());
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
         UserDTO user = userService.getUserById(id);
-        return user != null ? ResponseEntity.ok(user)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping
@@ -45,18 +47,16 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id,
-                                              @RequestBody UserDTO userDTO,
+                                              @Valid @RequestBody UserDTO userDTO,
                                               @RequestParam Set<Long> roleIds) {
         UserDTO updated = userService.updateUser(id, userDTO, roleIds);
-        return updated != null ? ResponseEntity.ok(updated)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        boolean deleted = userService.deleteUser(id);
-        return deleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        userService.deleteUser(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 

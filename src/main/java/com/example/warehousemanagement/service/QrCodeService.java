@@ -5,6 +5,7 @@ import com.example.warehousemanagement.dto.QrCodeDTO;
 import com.example.warehousemanagement.entity.Product;
 import com.example.warehousemanagement.entity.QrCode;
 import com.example.warehousemanagement.entity.WarehousePackage;
+import com.example.warehousemanagement.exception.NotFoundException;
 import com.example.warehousemanagement.mapper.QrCodeMapper;
 import com.example.warehousemanagement.repository.ProductRepository;
 import com.example.warehousemanagement.repository.QrCodeRepository;
@@ -48,10 +49,10 @@ public class QrCodeService {
     }
 
     public QrCodeDTO assignQrCodeToProduct(Long qrCodeId, Long productId) {
-        QrCode qrCode = qrCodeRepository.findById(qrCodeId).orElse(null);
-        if (qrCode == null) return null;
-        Product product = productRepository.findById(productId).orElse(null);
-        if (product == null) return null;
+        QrCode qrCode = qrCodeRepository.findById(qrCodeId)
+                .orElseThrow(() -> new NotFoundException("QR code not found with id: " + qrCodeId));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product not found with id: " + productId));
         product.setQrCode(qrCode);
         productRepository.save(product);
         // qrCode.setProduct(product)
@@ -59,10 +60,10 @@ public class QrCodeService {
     }
 
     public QrCodeDTO assignQrCodeToWarehousePackage(Long qrCodeId, Long packageId) {
-        QrCode qrCode = qrCodeRepository.findById(qrCodeId).orElse(null);
-        if (qrCode == null) return null;
-        WarehousePackage warehousePackage = warehousePackageRepository.findById(packageId).orElse(null);
-        if (warehousePackage == null) return null;
+        QrCode qrCode = qrCodeRepository.findById(qrCodeId)
+                .orElseThrow(() -> new NotFoundException("QR code not found with id: " + qrCodeId));
+        WarehousePackage warehousePackage = warehousePackageRepository.findById(packageId)
+                .orElseThrow(() -> new NotFoundException("Warehouse package not found with id: " + packageId));
         warehousePackage.setQrCode(qrCode);
         warehousePackageRepository.save(warehousePackage);
         return qrCodeMapper.qrCodeToQrCodeDTO(qrCode);
@@ -73,23 +74,28 @@ public class QrCodeService {
      */
     public QrCodeDTO getQrCodeByCode(String code) {
         QrCode qrCode = qrCodeRepository.findByCode(code);
-        return qrCode != null ? qrCodeMapper.qrCodeToQrCodeDTO(qrCode) : null;
+        if (qrCode == null) {
+            throw new NotFoundException("QR code not found with code: " + code);
+        }
+        return qrCodeMapper.qrCodeToQrCodeDTO(qrCode);
     }
 
     public QrCodeDTO getQrCodeByProductId(Long productId) {
-        Product product = productRepository.findById(productId).orElse(null);
-        if (product != null && product.getQrCode() != null) {
-            return qrCodeMapper.qrCodeToQrCodeDTO(product.getQrCode());
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product not found with id: " + productId));
+        if (product.getQrCode() == null) {
+            throw new NotFoundException("QR code not assigned to product with id: " + productId);
         }
-        return null;
+        return qrCodeMapper.qrCodeToQrCodeDTO(product.getQrCode());
     }
 
     public QrCodeDTO getQrCodeByPackageId(Long packageId) {
-        WarehousePackage pkg = warehousePackageRepository.findById(packageId).orElse(null);
-        if (pkg != null && pkg.getQrCode() != null) {
-            return qrCodeMapper.qrCodeToQrCodeDTO(pkg.getQrCode());
+        WarehousePackage pkg = warehousePackageRepository.findById(packageId)
+                .orElseThrow(() -> new NotFoundException("Warehouse package not found with id: " + packageId));
+        if (pkg.getQrCode() == null) {
+            throw new NotFoundException("QR code not assigned to package with id: " + packageId);
         }
-        return null;
+        return qrCodeMapper.qrCodeToQrCodeDTO(pkg.getQrCode());
     }
 
     /**
@@ -105,7 +111,7 @@ public class QrCodeService {
     public QrCodeDTO getQrCodeById(Long id) {
         return qrCodeRepository.findById(id)
                 .map(qrCodeMapper::qrCodeToQrCodeDTO)
-                .orElse(null);
+                .orElseThrow(() -> new NotFoundException("QR code not found with id: " + id));
     }
 
 
@@ -121,18 +127,17 @@ public class QrCodeService {
             existing.setAssignedToType(dto.getAssignedToType());
             existing.setCreatedAt(dto.getCreatedAt() != null ? dto.getCreatedAt() : existing.getCreatedAt());
             return qrCodeMapper.qrCodeToQrCodeDTO(qrCodeRepository.save(existing));
-        }).orElse(null);
+        }).orElseThrow(() -> new NotFoundException("QR code not found with id: " + id));
     }
 
     /**
      * deletes a QR code by id
      */
-    public boolean deleteQrCode(Long id) {
-        if (qrCodeRepository.existsById(id)) {
-            qrCodeRepository.deleteById(id);
-            return true;
+    public void deleteQrCode(Long id) {
+        if (!qrCodeRepository.existsById(id)) {
+            throw new NotFoundException("QR code not found with id: " + id);
         }
-        return false;
+        qrCodeRepository.deleteById(id);
     }
 
     // assign QR code to an entity (product, package, etc.)

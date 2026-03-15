@@ -2,6 +2,7 @@ package com.example.warehousemanagement.service;
 
 import com.example.warehousemanagement.dto.CategoryDTO;
 import com.example.warehousemanagement.entity.Category;
+import com.example.warehousemanagement.exception.NotFoundException;
 import com.example.warehousemanagement.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,7 +47,7 @@ public class CategoryService {
     public CategoryDTO getCategoryById(Long id) {
         return categoryRepository.findById(id)
                 .map(this::mapToCategoryDTO)
-                .orElse(null);
+                .orElseThrow(() -> new NotFoundException("Category not found with id: " + id));
     }
 
     public List<CategoryDTO> getAllCategories() {
@@ -61,15 +62,14 @@ public class CategoryService {
             existing.setDescription(categoryDTO.getDescription());
             Category updatedCategory = categoryRepository.save(existing);
             return mapToCategoryDTO(updatedCategory);
-        }).orElse(null);
+        }).orElseThrow(() -> new NotFoundException("Category not found with id: " + id));
     }
 
-    public boolean deleteCategory(Long id) {
-        if(categoryRepository.existsById(id)) {
-            categoryRepository.deleteById(id);
-            return true;
+    public void deleteCategory(Long id) {
+        if (!categoryRepository.existsById(id)) {
+            throw new NotFoundException("Category not found with id: " + id);
         }
-        return false;
+        categoryRepository.deleteById(id);
     }
 
 }

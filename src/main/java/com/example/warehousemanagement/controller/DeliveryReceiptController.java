@@ -31,8 +31,7 @@ public class DeliveryReceiptController {
     @GetMapping("/{id}")
     public ResponseEntity<DeliveryReceiptDTO> getDeliveryReceiptById(@PathVariable Long id) {
         DeliveryReceiptDTO dto = deliveryReceiptService.getDeliveryReceiptById(id);
-        if (dto != null) return ResponseEntity.ok(dto);
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(dto);
     }
 
 
@@ -47,24 +46,21 @@ public class DeliveryReceiptController {
     @GetMapping("/by-shipment/{shipmentId}")
     public ResponseEntity<DeliveryReceiptDTO> getByShipment(@PathVariable Long shipmentId) {
         DeliveryReceiptDTO dto = deliveryReceiptService.getDeliveryReceiptByShipmentId(shipmentId);
-        if (dto != null) return ResponseEntity.ok(dto);
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(dto);
     }
 
 
     @PutMapping("/{id}")
     public ResponseEntity<DeliveryReceiptDTO> updateDeliveryReceipt(@PathVariable Long id, @RequestBody DeliveryReceiptDTO dto) {
         DeliveryReceiptDTO updated = deliveryReceiptService.updateDeliveryReceipt(id, dto);
-        if (updated != null) return ResponseEntity.ok(updated);
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(updated);
     }
 
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDeliveryReceipt(@PathVariable Long id) {
-        boolean deleted = deliveryReceiptService.deleteDeliveryReceipt(id);
-        if (deleted) return ResponseEntity.noContent().build();
-        return ResponseEntity.notFound().build();
+        deliveryReceiptService.deleteDeliveryReceipt(id);
+        return ResponseEntity.noContent().build();
     }
 
 

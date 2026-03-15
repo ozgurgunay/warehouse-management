@@ -2,6 +2,7 @@ package com.example.warehousemanagement.service;
 
 import com.example.warehousemanagement.dto.WarehouseDTO;
 import com.example.warehousemanagement.entity.Warehouse;
+import com.example.warehousemanagement.exception.NotFoundException;
 import com.example.warehousemanagement.mapper.WarehouseMapper;
 import com.example.warehousemanagement.repository.WarehouseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class WarehouseService {
     public WarehouseDTO getWarehouseById(Long id) {
         return warehouseRepository.findById(id)
                 .map(warehouseMapper::warehouseToWarehouseDTO)
-                .orElse(null);
+                .orElseThrow(() -> new NotFoundException("Warehouse not found with id: " + id));
     }
 
     public List<WarehouseDTO> getAllWarehouses() {
@@ -48,15 +49,14 @@ public class WarehouseService {
             existing.setContactNumber(dto.getContactNumber());
             Warehouse updated = warehouseRepository.save(existing);
             return warehouseMapper.warehouseToWarehouseDTO(updated);
-        }).orElse(null);
+        }).orElseThrow(() -> new NotFoundException("Warehouse not found with id: " + id));
     }
 
-    public boolean deleteWarehouse(Long id) {
-        if (warehouseRepository.existsById(id)) {
-            warehouseRepository.deleteById(id);
-            return true;
+    public void deleteWarehouse(Long id) {
+        if (!warehouseRepository.existsById(id)) {
+            throw new NotFoundException("Warehouse not found with id: " + id);
         }
-        return false;
+        warehouseRepository.deleteById(id);
     }
 
 }
