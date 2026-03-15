@@ -2,6 +2,7 @@ package com.example.warehousemanagement.service;
 
 import com.example.warehousemanagement.dto.DeliveryReceiptDTO;
 import com.example.warehousemanagement.entity.DeliveryReceipt;
+import com.example.warehousemanagement.exception.NotFoundException;
 import com.example.warehousemanagement.mapper.DeliveryReceiptMapper;
 import com.example.warehousemanagement.repository.DeliveryReceiptRepository;
 import com.example.warehousemanagement.repository.ShipmentRepository;
@@ -50,13 +51,16 @@ public class DeliveryReceiptService {
     public DeliveryReceiptDTO getDeliveryReceiptById(Long id) {
         return deliveryReceiptRepository.findById(id)
                 .map(deliveryReceiptMapper::deliveryReceiptToDeliveryReceiptDTO)
-                .orElse(null);
+                .orElseThrow(() -> new NotFoundException("Delivery receipt not found with id: " + id));
     }
 
 
     public DeliveryReceiptDTO getDeliveryReceiptByShipmentId(Long shipmentId) {
         DeliveryReceipt receipt = deliveryReceiptRepository.findByShipmentId(shipmentId);
-        return receipt != null ? deliveryReceiptMapper.deliveryReceiptToDeliveryReceiptDTO(receipt) : null;
+        if (receipt == null) {
+            throw new NotFoundException("Delivery receipt not found for shipment id: " + shipmentId);
+        }
+        return deliveryReceiptMapper.deliveryReceiptToDeliveryReceiptDTO(receipt);
     }
 
 
@@ -77,16 +81,15 @@ public class DeliveryReceiptService {
             existing.setDeliveredAt(dto.getDeliveredAt() != null ? dto.getDeliveredAt() : existing.getDeliveredAt());
             return deliveryReceiptMapper.deliveryReceiptToDeliveryReceiptDTO(
                     deliveryReceiptRepository.save(existing));
-        }).orElse(null);
+        }).orElseThrow(() -> new NotFoundException("Delivery receipt not found with id: " + id));
     }
 
 
 
-    public boolean deleteDeliveryReceipt(Long id) {
-        if (deliveryReceiptRepository.existsById(id)) {
-            deliveryReceiptRepository.deleteById(id);
-            return true;
+    public void deleteDeliveryReceipt(Long id) {
+        if (!deliveryReceiptRepository.existsById(id)) {
+            throw new NotFoundException("Delivery receipt not found with id: " + id);
         }
-        return false;
+        deliveryReceiptRepository.deleteById(id);
     }
 }

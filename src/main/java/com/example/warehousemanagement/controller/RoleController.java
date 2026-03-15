@@ -30,8 +30,7 @@ public class RoleController {
     @GetMapping("/{id}")
     public ResponseEntity<RoleDTO> getRoleById(@PathVariable Long id) {
         RoleDTO role = roleService.getRoleById(id);
-        return role != null ? new ResponseEntity<>(role, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(role, HttpStatus.OK);
     }
 
     @GetMapping
@@ -43,15 +42,13 @@ public class RoleController {
     @PutMapping("/{id}")
     public ResponseEntity<RoleDTO> updateRole(@PathVariable Long id, @RequestBody RoleDTO roleDTO) {
         RoleDTO updated = roleService.updateRole(id, roleDTO);
-        return updated != null ? new ResponseEntity<>(updated, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
-        boolean deleted = roleService.deleteRole(id);
-        return deleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        roleService.deleteRole(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 

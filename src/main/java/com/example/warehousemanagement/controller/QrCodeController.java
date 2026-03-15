@@ -36,16 +36,14 @@ public class QrCodeController {
     @GetMapping("/{id}")
     public ResponseEntity<QrCodeDTO> getQrCodeById(@PathVariable Long id) {
         QrCodeDTO dto = qrCodeService.getQrCodeById(id);
-        if (dto != null) return ResponseEntity.ok(dto);
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(dto);
     }
 
 
     @GetMapping("/find")
     public ResponseEntity<QrCodeDTO> getByCode(@RequestParam String code) {
         QrCodeDTO dto = qrCodeService.getQrCodeByCode(code);
-        if (dto != null) return ResponseEntity.ok(dto);
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(dto);
     }
 
 
@@ -53,31 +51,27 @@ public class QrCodeController {
     @PutMapping("/{id}")
     public ResponseEntity<QrCodeDTO> updateQrCode(@PathVariable Long id, @RequestBody QrCodeDTO dto) {
         QrCodeDTO updated = qrCodeService.updateQrCode(id, dto);
-        if (updated != null) return ResponseEntity.ok(updated);
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(updated);
     }
 
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteQrCode(@PathVariable Long id) {
-        boolean deleted = qrCodeService.deleteQrCode(id);
-        if (deleted) return ResponseEntity.noContent().build();
-        return ResponseEntity.notFound().build();
+        qrCodeService.deleteQrCode(id);
+        return ResponseEntity.noContent().build();
     }
 
 
     @GetMapping("/by-product/{productId}")
     public ResponseEntity<QrCodeDTO> getQrCodeByProduct(@PathVariable Long productId) {
         QrCodeDTO dto = qrCodeService.getQrCodeByProductId(productId);
-        if (dto != null) return ResponseEntity.ok(dto);
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/by-package/{packageId}")
     public ResponseEntity<QrCodeDTO> getQrCodeByPackage(@PathVariable Long packageId) {
         QrCodeDTO dto = qrCodeService.getQrCodeByPackageId(packageId);
-        if (dto != null) return ResponseEntity.ok(dto);
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(dto);
     }
 
 

@@ -30,8 +30,7 @@ public class StockMovementController {
     @GetMapping("/{id}")
     public ResponseEntity<StockMovementDTO> getStockMovementById(@PathVariable Long id) {
         StockMovementDTO dto = stockMovementService.getStockMovementById(id);
-        return dto != null ? new ResponseEntity<>(dto, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
     @GetMapping
@@ -43,15 +42,13 @@ public class StockMovementController {
     @PutMapping("/{id}")
     public ResponseEntity<StockMovementDTO> updateStockMovement(@PathVariable Long id, @RequestBody StockMovementDTO dto) {
         StockMovementDTO updated = stockMovementService.updateStockMovement(id, dto);
-        return updated != null ? new ResponseEntity<>(updated, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStockMovement(@PathVariable Long id) {
-        boolean deleted = stockMovementService.deleteStockMovement(id);
-        return deleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        stockMovementService.deleteStockMovement(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 }

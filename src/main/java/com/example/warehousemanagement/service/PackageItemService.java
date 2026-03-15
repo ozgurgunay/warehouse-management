@@ -3,6 +3,7 @@ package com.example.warehousemanagement.service;
 
 import com.example.warehousemanagement.dto.PackageItemDTO;
 import com.example.warehousemanagement.entity.PackageItem;
+import com.example.warehousemanagement.exception.NotFoundException;
 import com.example.warehousemanagement.mapper.PackageItemMapper;
 import com.example.warehousemanagement.repository.PackageItemRepository;
 import com.example.warehousemanagement.repository.ProductRepository;
@@ -48,9 +49,11 @@ public class PackageItemService {
     public PackageItemDTO addPackageItem(PackageItemDTO dto) {
         PackageItem item = packageItemMapper.packageItemDTOToPackageItem(dto);
         // Set related package
-        item.setPkg(warehousePackageRepository.findById(dto.getPackageId()).orElse(null));
+        item.setPkg(warehousePackageRepository.findById(dto.getPackageId())
+                .orElseThrow(() -> new NotFoundException("Warehouse package not found with id: " + dto.getPackageId())));
         // Set related product
-        item.setProduct(productRepository.findById(dto.getProductId()).orElse(null));
+        item.setProduct(productRepository.findById(dto.getProductId())
+                .orElseThrow(() -> new NotFoundException("Product not found with id: " + dto.getProductId())));
         return packageItemMapper.packageItemToPackageItemDTO(packageItemRepository.save(item));
     }
 
@@ -62,23 +65,24 @@ public class PackageItemService {
 
             // allow changing the product reference
             if (dto.getProductId() != null) {
-                existing.setProduct(productRepository.findById(dto.getProductId()).orElse(existing.getProduct()));
+                existing.setProduct(productRepository.findById(dto.getProductId())
+                        .orElseThrow(() -> new NotFoundException("Product not found with id: " + dto.getProductId())));
             }
             // If you want to allow moving item to another package:
             if (dto.getPackageId() != null) {
-                existing.setPkg(warehousePackageRepository.findById(dto.getPackageId()).orElse(existing.getPkg()));
+                existing.setPkg(warehousePackageRepository.findById(dto.getPackageId())
+                        .orElseThrow(() -> new NotFoundException("Warehouse package not found with id: " + dto.getPackageId())));
             }
             return packageItemMapper.packageItemToPackageItemDTO(packageItemRepository.save(existing));
-        }).orElse(null);
+        }).orElseThrow(() -> new NotFoundException("Package item not found with id: " + id));
     }
 
 
-    public boolean deletePackageItem(Long id) {
-        if (packageItemRepository.existsById(id)) {
-            packageItemRepository.deleteById(id);
-            return true;
+    public void deletePackageItem(Long id) {
+        if (!packageItemRepository.existsById(id)) {
+            throw new NotFoundException("Package item not found with id: " + id);
         }
-        return false;
+        packageItemRepository.deleteById(id);
     }
 
 
@@ -93,7 +97,7 @@ public class PackageItemService {
     public PackageItemDTO getPackageItem(Long id) {
         return packageItemRepository.findById(id)
                 .map(packageItemMapper::packageItemToPackageItemDTO)
-                .orElse(null);
+                .orElseThrow(() -> new NotFoundException("Package item not found with id: " + id));
     }
 
 

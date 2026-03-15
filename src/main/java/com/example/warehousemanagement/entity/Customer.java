@@ -21,7 +21,18 @@ public class Customer {
     private String taxNumber;    // Optional, if B2B
     private String companyName;  // Optional
 
-    // Audit fields
+    // Audit fields (set automatically by JPA lifecycle callbacks)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = createdAt;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

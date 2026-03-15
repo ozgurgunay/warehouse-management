@@ -2,6 +2,7 @@ package com.example.warehousemanagement.service;
 
 import com.example.warehousemanagement.dto.ProductDTO;
 import com.example.warehousemanagement.entity.Product;
+import com.example.warehousemanagement.exception.NotFoundException;
 import com.example.warehousemanagement.mapper.ProductMapper;
 import com.example.warehousemanagement.repository.CategoryRepository;
 import com.example.warehousemanagement.repository.ProductRepository;
@@ -27,9 +28,19 @@ public class ProductService {
         this.categoryRepository = categoryRepository;
     }
 
-    //    create product
+    // Create product with optional category relation
     public ProductDTO createProduct(ProductDTO dto) {
         Product product = productMapper.productDTOToProduct(dto);
+
+        if (dto.getCategoryId() != null) {
+            product.setCategory(
+                    categoryRepository.findById(dto.getCategoryId())
+                            .orElseThrow(() -> new NotFoundException("Category not found with id: " + dto.getCategoryId()))
+            );
+        } else {
+            product.setCategory(null);
+        }
+
         Product savedProduct = productRepository.save(product);
         // Convert saved entity back to DTO
         return productMapper.productToProductDTO(savedProduct);
@@ -42,21 +53,20 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    //    get product by id
+    // Get product by id
     public ProductDTO getProductById(Long id) {
         return productRepository.findById(id)
                 .map(productMapper::productToProductDTO)
-                .orElse(null);
+                .orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
     }
 
-    //    update product
+    // Update product
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
         return productRepository.findById(id).map(existing -> {
             existing.setName(productDTO.getName());
             existing.setSku(productDTO.getSku());
             existing.setPrice(productDTO.getPrice());
             existing.setDescription(productDTO.getDescription());
-            existing.setCategory(categoryRepository.findById(productDTO.getCategoryId()).orElse(null));
             existing.setUpdatedBy(productDTO.getUpdatedBy());
 
             if (productDTO.getCategoryId() != null) {
@@ -70,18 +80,26 @@ public class ProductService {
 
             // Note: createdAt and updatedAt are managed automatically via @PrePersist and @PreUpdate
 
+            if (productDTO.getCategoryId() != null) {
+                existing.setCategory(
+                        categoryRepository.findById(productDTO.getCategoryId())
+                                .orElseThrow(() -> new NotFoundException("Category not found with id: " + productDTO.getCategoryId()))
+                );
+            } else {
+                existing.setCategory(null);
+            }
+
             Product updated = productRepository.save(existing);
             return productMapper.productToProductDTO(updated);
-        }).orElse(null);
+        }).orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
     }
 
-    //    delete product
-    public boolean deleteProduct(Long id) {
-        if(productRepository.existsById(id)) {
-            productRepository.deleteById(id);
-            return true;
+    // Delete product
+    public void deleteProduct(Long id) {
+        if (!productRepository.existsById(id)) {
+            throw new NotFoundException("Product not found with id: " + id);
         }
-        return false;
+        productRepository.deleteById(id);
     }
 
 

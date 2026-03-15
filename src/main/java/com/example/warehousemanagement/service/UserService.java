@@ -4,6 +4,7 @@ package com.example.warehousemanagement.service;
 import com.example.warehousemanagement.dto.UserDTO;
 import com.example.warehousemanagement.entity.Role;
 import com.example.warehousemanagement.entity.User;
+import com.example.warehousemanagement.exception.NotFoundException;
 import com.example.warehousemanagement.mapper.UserMapper;
 import com.example.warehousemanagement.repository.RoleRepository;
 import com.example.warehousemanagement.repository.UserRepository;
@@ -85,7 +86,7 @@ public class UserService {
     public UserDTO getUserById(Long id) {
         return userRepository.findById(id)
                 .map(userMapper::userToUserDTO)
-                .orElse(null);
+                .orElseThrow(() -> new NotFoundException("User not found with id: " + id));
     }
 
     public List<UserDTO> getAllUsers() {
@@ -106,15 +107,14 @@ public class UserService {
             }
             User updated = userRepository.save(existing);
             return userMapper.userToUserDTO(updated);
-        }).orElse(null);
+        }).orElseThrow(() -> new NotFoundException("User not found with id: " + id));
     }
 
-    public boolean deleteUser(Long id) {
-        if(userRepository.existsById(id)) {
-            userRepository.deleteById(id);
-            return true;
+    public void deleteUser(Long id) {
+        if(!userRepository.existsById(id)) {
+            throw new NotFoundException("User not found with id: " + id);
         }
-        return false;
+        userRepository.deleteById(id);
     }
 
 

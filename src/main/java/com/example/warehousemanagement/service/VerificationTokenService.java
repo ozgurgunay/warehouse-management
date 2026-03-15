@@ -3,6 +3,7 @@ package com.example.warehousemanagement.service;
 import com.example.warehousemanagement.dto.VerificationTokenDTO;
 import com.example.warehousemanagement.entity.User;
 import com.example.warehousemanagement.entity.VerificationToken;
+import com.example.warehousemanagement.exception.BusinessException;
 import com.example.warehousemanagement.mapper.VerificationTokenMapper;
 import com.example.warehousemanagement.repository.UserRepository;
 import com.example.warehousemanagement.repository.VerificationTokenRepository;
@@ -45,10 +46,10 @@ public class VerificationTokenService {
     // Confirm user and delete token if valid
     public boolean confirmUser(String tokenValue) {
         VerificationToken token = tokenRepository.findByToken(tokenValue)
-                .orElseThrow(() -> new RuntimeException("Invalid token"));
+                .orElseThrow(() -> new BusinessException("Invalid verification token"));
 
         if (token.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Token expired");
+            throw new BusinessException("Verification token has expired");
         }
 
         User user = token.getUser();

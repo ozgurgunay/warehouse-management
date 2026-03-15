@@ -42,7 +42,7 @@ public class CustomerService {
     public CustomerDTO getCustomerById(Long id) {
         return customerRepository.findById(id)
                 .map(customerMapper::customerToCustomerDTO)
-                .orElse(null);
+                .orElseThrow(() -> new com.example.warehousemanagement.exception.NotFoundException("Customer not found with id: " + id));
     }
 
     /**
@@ -64,20 +64,21 @@ public class CustomerService {
             existing.setEmail(dto.getEmail());
             existing.setPhone(dto.getPhone());
             existing.setAddress(dto.getAddress());
+            existing.setTaxNumber(dto.getTaxNumber());
+            existing.setCompanyName(dto.getCompanyName());
 
             return customerMapper.customerToCustomerDTO(customerRepository.save(existing));
-        }).orElse(null);
+        }).orElseThrow(() -> new com.example.warehousemanagement.exception.NotFoundException("Customer not found with id: " + id));
     }
 
     /**
      * deletes a customer by id
      */
-    public boolean deleteCustomer(Long id) {
-        if (customerRepository.existsById(id)) {
-            customerRepository.deleteById(id);
-            return true;
+    public void deleteCustomer(Long id) {
+        if (!customerRepository.existsById(id)) {
+            throw new com.example.warehousemanagement.exception.NotFoundException("Customer not found with id: " + id);
         }
-        return false;
+        customerRepository.deleteById(id);
     }
 
     // advanced features

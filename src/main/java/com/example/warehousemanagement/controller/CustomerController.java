@@ -3,6 +3,7 @@ package com.example.warehousemanagement.controller;
 
 import com.example.warehousemanagement.dto.CustomerDTO;
 import com.example.warehousemanagement.service.CustomerService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,47 +21,38 @@ public class CustomerController {
         this.customerService = customerService;
     }
 
-    // new customer
+    // Create a new customer
     @PostMapping
-    public ResponseEntity<CustomerDTO> createCustomer(@RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<CustomerDTO> createCustomer(@Valid @RequestBody CustomerDTO customerDTO) {
         CustomerDTO created = customerService.createCustomer(customerDTO);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
-    // get all customers
+    // Get all customers
     @GetMapping
     public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
         List<CustomerDTO> customers = customerService.getAllCustomers();
         return ResponseEntity.ok(customers);
     }
 
-    // get a customer by ID
+    // Get a customer by ID
     @GetMapping("/{id}")
     public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable Long id) {
         CustomerDTO customer = customerService.getCustomerById(id);
-        if (customer == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(customer);
     }
 
-    // update a customer
+    // Update a customer
     @PutMapping("/{id}")
-    public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable Long id, @RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable Long id, @Valid @RequestBody CustomerDTO customerDTO) {
         CustomerDTO updated = customerService.updateCustomer(id, customerDTO);
-        if (updated == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(updated);
     }
 
-    // delete a customer
+    // Delete a customer
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
-        boolean deleted = customerService.deleteCustomer(id);
-        if (!deleted) {
-            return ResponseEntity.notFound().build();
-        }
+        customerService.deleteCustomer(id);
         return ResponseEntity.noContent().build();
     }
 

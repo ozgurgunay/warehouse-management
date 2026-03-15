@@ -5,6 +5,7 @@ import com.example.warehousemanagement.dto.PackageItemDTO;
 import com.example.warehousemanagement.dto.WarehousePackageDTO;
 import com.example.warehousemanagement.entity.PackageItem;
 import com.example.warehousemanagement.entity.WarehousePackage;
+import com.example.warehousemanagement.exception.NotFoundException;
 import com.example.warehousemanagement.mapper.PackageItemMapper;
 import com.example.warehousemanagement.mapper.WarehousePackageMapper;
 import com.example.warehousemanagement.repository.*;
@@ -54,11 +55,14 @@ public class WarehousePackageService {
     public WarehousePackageDTO createWarehousePackage(WarehousePackageDTO dto) {
         WarehousePackage pkg = warehousePackageMapper.warehousePackageDTOToWarehousePackage(dto);
         if (dto.getShipmentId() != null)
-            pkg.setShipment(shipmentRepository.findById(dto.getShipmentId()).orElse(null));
+            pkg.setShipment(shipmentRepository.findById(dto.getShipmentId())
+                    .orElseThrow(() -> new NotFoundException("Shipment not found with id: " + dto.getShipmentId())));
         if (dto.getBarcodeId() != null)
-            pkg.setBarcode(barcodeRepository.findById(dto.getBarcodeId()).orElse(null));
+            pkg.setBarcode(barcodeRepository.findById(dto.getBarcodeId())
+                    .orElseThrow(() -> new NotFoundException("Barcode not found with id: " + dto.getBarcodeId())));
         if (dto.getQrCodeId() != null)
-            pkg.setQrCode(qrCodeRepository.findById(dto.getQrCodeId()).orElse(null));
+            pkg.setQrCode(qrCodeRepository.findById(dto.getQrCodeId())
+                    .orElseThrow(() -> new NotFoundException("QR code not found with id: " + dto.getQrCodeId())));
         // Items are handled separately (see addItemToPackage)
         return warehousePackageMapper.warehousePackageToWarehousePackageDTO(warehousePackageRepository.save(pkg));
     }
@@ -67,11 +71,12 @@ public class WarehousePackageService {
      * adds an item (product) to a warehouse package
      */
     public PackageItemDTO addItemToPackage(Long packageId, PackageItemDTO itemDto) {
-        WarehousePackage pkg = warehousePackageRepository.findById(packageId).orElse(null);
-        if (pkg == null) return null;
+        WarehousePackage pkg = warehousePackageRepository.findById(packageId)
+                .orElseThrow(() -> new NotFoundException("Warehouse package not found with id: " + packageId));
         PackageItem item = new PackageItem();
         item.setPkg(pkg);
-        item.setProduct(productRepository.findById(itemDto.getProductId()).orElse(null));
+        item.setProduct(productRepository.findById(itemDto.getProductId())
+                .orElseThrow(() -> new NotFoundException("Product not found with id: " + itemDto.getProductId())));
         item.setQuantity(itemDto.getQuantity());
         PackageItem saved = packageItemRepository.save(item);
         return packageItemMapper.packageItemToPackageItemDTO(saved);
@@ -109,22 +114,23 @@ public class WarehousePackageService {
             pkg.setPackageType(dto.getPackageType());
             // Update barcode/qr relationships if necessary
             if (dto.getBarcodeId() != null)
-                pkg.setBarcode(barcodeRepository.findById(dto.getBarcodeId()).orElse(null));
+                pkg.setBarcode(barcodeRepository.findById(dto.getBarcodeId())
+                        .orElseThrow(() -> new NotFoundException("Barcode not found with id: " + dto.getBarcodeId())));
             if (dto.getQrCodeId() != null)
-                pkg.setQrCode(qrCodeRepository.findById(dto.getQrCodeId()).orElse(null));
+                pkg.setQrCode(qrCodeRepository.findById(dto.getQrCodeId())
+                        .orElseThrow(() -> new NotFoundException("QR code not found with id: " + dto.getQrCodeId())));
             return warehousePackageMapper.warehousePackageToWarehousePackageDTO(warehousePackageRepository.save(pkg));
-        }).orElse(null);
+        }).orElseThrow(() -> new NotFoundException("Warehouse package not found with id: " + id));
     }
 
     /**
      * deletes a warehouse package by id
      */
-    public boolean deleteWarehousePackage(Long id) {
-        if (warehousePackageRepository.existsById(id)) {
-            warehousePackageRepository.deleteById(id);
-            return true;
+    public void deleteWarehousePackage(Long id) {
+        if (!warehousePackageRepository.existsById(id)) {
+            throw new NotFoundException("Warehouse package not found with id: " + id);
         }
-        return false;
+        warehousePackageRepository.deleteById(id);
     }
 
     // get all items of a package
@@ -139,7 +145,7 @@ public class WarehousePackageService {
     public WarehousePackageDTO getPackageById(Long id) {
         return warehousePackageRepository.findById(id)
                 .map(warehousePackageMapper::warehousePackageToWarehousePackageDTO)
-                .orElse(null);
+                .orElseThrow(() -> new NotFoundException("Warehouse package not found with id: " + id));
     }
 
     //get all packages

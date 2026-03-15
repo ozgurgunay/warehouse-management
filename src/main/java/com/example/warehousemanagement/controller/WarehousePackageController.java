@@ -22,7 +22,7 @@ public class WarehousePackageController {
     }
 
 
-    // create new package
+    // Create a new package
     @PostMapping
     public ResponseEntity<WarehousePackageDTO> createPackage(@RequestBody WarehousePackageDTO dto) {
         WarehousePackageDTO created = warehousePackageService.createWarehousePackage(dto);
@@ -40,24 +40,21 @@ public class WarehousePackageController {
     @GetMapping("/{id}")
     public ResponseEntity<WarehousePackageDTO> getPackageById(@PathVariable Long id) {
         WarehousePackageDTO dto = warehousePackageService.getPackageById(id);
-        if (dto != null) return ResponseEntity.ok(dto);
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(dto);
     }
 
     // update a package
     @PutMapping("/{id}")
     public ResponseEntity<WarehousePackageDTO> updatePackage(@PathVariable Long id, @RequestBody WarehousePackageDTO dto) {
         WarehousePackageDTO updated = warehousePackageService.updateWarehousePackage(id, dto);
-        if (updated != null) return ResponseEntity.ok(updated);
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(updated);
     }
 
     // delete a package
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePackage(@PathVariable Long id) {
-        boolean deleted = warehousePackageService.deleteWarehousePackage(id);
-        if (deleted) return ResponseEntity.noContent().build();
-        return ResponseEntity.notFound().build();
+        warehousePackageService.deleteWarehousePackage(id);
+        return ResponseEntity.noContent().build();
     }
 
     // add an item to a package
@@ -66,8 +63,7 @@ public class WarehousePackageController {
             @PathVariable Long id,
             @RequestBody PackageItemDTO itemDto) {
         PackageItemDTO created = warehousePackageService.addItemToPackage(id, itemDto);
-        if (created != null) return ResponseEntity.ok(created);
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(created);
     }
 
     // list items of a package

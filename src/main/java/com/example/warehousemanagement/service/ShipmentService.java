@@ -7,12 +7,16 @@ import com.example.warehousemanagement.entity.DeliveryReceipt;
 import com.example.warehousemanagement.entity.Shipment;
 import com.example.warehousemanagement.entity.WarehousePackage;
 import com.example.warehousemanagement.entity.enums.ShipmentStatus;
+import com.example.warehousemanagement.exception.NotFoundException;
 import com.example.warehousemanagement.mapper.ShipmentMapper;
 import com.example.warehousemanagement.repository.DeliveryReceiptRepository;
 import com.example.warehousemanagement.repository.OrderRepository;
 import com.example.warehousemanagement.repository.ShipmentRepository;
 import com.example.warehousemanagement.repository.WarehousePackageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,6 +31,7 @@ public class ShipmentService {
     private final OrderRepository orderRepository;
     private final DeliveryReceiptRepository deliveryReceiptRepository;
     private final WarehousePackageRepository warehousePackageRepository;
+    private final InventoryAllocationService inventoryAllocationService;
 
     @Autowired
     public ShipmentService(
@@ -34,13 +39,15 @@ public class ShipmentService {
             ShipmentMapper shipmentMapper,
             OrderRepository orderRepository,
             DeliveryReceiptRepository deliveryReceiptRepository,
-            WarehousePackageRepository warehousePackageRepository
+            WarehousePackageRepository warehousePackageRepository,
+            InventoryAllocationService inventoryAllocationService
     ) {
         this.shipmentRepository = shipmentRepository;
         this.shipmentMapper = shipmentMapper;
         this.orderRepository = orderRepository;
         this.deliveryReceiptRepository = deliveryReceiptRepository;
         this.warehousePackageRepository = warehousePackageRepository;
+        this.inventoryAllocationService = inventoryAllocationService;
     }
 
 
@@ -63,10 +70,35 @@ public class ShipmentService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Returns paginated shipments with optional filtering by status and orderId.
+     */
+    public List<ShipmentDTO> getShipments(ShipmentStatus status, Long orderId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        if (orderId != null) {
+            // Filter by order first, then optionally by status, and page in memory.
+            List<Shipment> allForOrder = shipmentRepository.findByOrderId(orderId);
+            return allForOrder.stream()
+                    .filter(s -> status == null || s.getStatus() == status)
+                    .skip((long) page * size)
+                    .limit(size)
+                    .map(shipmentMapper::shipmentToShipmentDTO)
+                    .collect(Collectors.toList());
+        } else {
+            // No order filter: use DB paging, then optionally filter by status.
+            Page<Shipment> basePage = shipmentRepository.findAll(pageable);
+            return basePage.stream()
+                    .filter(s -> status == null || s.getStatus() == status)
+                    .map(shipmentMapper::shipmentToShipmentDTO)
+                    .collect(Collectors.toList());
+        }
+    }
+
     public ShipmentDTO getShipmentById(Long id) {
         return shipmentRepository.findById(id)
                 .map(shipmentMapper::shipmentToShipmentDTO)
-                .orElse(null);
+                .orElseThrow(() -> new NotFoundException("Shipment not found with id: " + id));
     }
 
 
@@ -83,7 +115,7 @@ public class ShipmentService {
                 orderRepository.save(shipment.getOrder());
             }
             return shipmentMapper.shipmentToShipmentDTO(shipmentRepository.save(shipment));
-        }).orElse(null);
+        }).orElseThrow(() -> new NotFoundException("Shipment not found with id: " + shipmentId));
     }
 
 
@@ -104,16 +136,21 @@ public class ShipmentService {
             if (shipment.getOrder() != null) {
                 shipment.getOrder().setShipmentStatus(ShipmentStatus.DELIVERED);
                 orderRepository.save(shipment.getOrder());
+                // Consume inventory allocations for this order when shipment is delivered
+                inventoryAllocationService.consumeAllocationsForOrder(shipment.getOrder().getId());
             }
             return shipmentMapper.shipmentToShipmentDTO(shipmentRepository.save(shipment));
-        }).orElse(null);
+        }).orElseThrow(() -> new NotFoundException("Shipment not found with id: " + shipmentId));
     }
 
 
 
     public ShipmentDTO getShipmentByTrackingNumber(String trackingNumber) {
         Shipment shipment = shipmentRepository.findByTrackingNumber(trackingNumber);
-        return shipment != null ? shipmentMapper.shipmentToShipmentDTO(shipment) : null;
+        if (shipment == null) {
+            throw new NotFoundException("Shipment not found with tracking number: " + trackingNumber);
+        }
+        return shipmentMapper.shipmentToShipmentDTO(shipment);
     }
 
 
@@ -127,15 +164,16 @@ public class ShipmentService {
 
 
     public ShipmentDTO addWarehousePackageToShipment(Long shipmentId, Long warehousePackageId) {
-        Shipment shipment = shipmentRepository.findById(shipmentId).orElse(null);
-        WarehousePackage warehousePackage = warehousePackageRepository.findById(warehousePackageId).orElse(null);
-        if (shipment != null && warehousePackage != null) {
-            warehousePackage.setShipment(shipment);
-            warehousePackageRepository.save(warehousePackage);
-            // optional-refresh and return updated shipment
-            return shipmentMapper.shipmentToShipmentDTO(shipmentRepository.findById(shipmentId).orElse(shipment));
-        }
-        return null;
+        Shipment shipment = shipmentRepository.findById(shipmentId)
+                .orElseThrow(() -> new NotFoundException("Shipment not found with id: " + shipmentId));
+        WarehousePackage warehousePackage = warehousePackageRepository.findById(warehousePackageId)
+                .orElseThrow(() -> new NotFoundException("Warehouse package not found with id: " + warehousePackageId));
+
+        warehousePackage.setShipment(shipment);
+        warehousePackageRepository.save(warehousePackage);
+        // Refresh and return updated shipment
+        Shipment reloaded = shipmentRepository.findById(shipmentId).orElse(shipment);
+        return shipmentMapper.shipmentToShipmentDTO(reloaded);
     }
 
 
@@ -151,14 +189,14 @@ public class ShipmentService {
             existing.setBarcode(dto.getBarcode());
             existing.setQrCode(dto.getQrCode());
             return shipmentMapper.shipmentToShipmentDTO(shipmentRepository.save(existing));
-        }).orElse(null);
+        }).orElseThrow(() -> new NotFoundException("Shipment not found with id: " + id));
     }
 
 
     public ShipmentDTO getShipment(Long id) {
         return shipmentRepository.findById(id)
                 .map(shipmentMapper::shipmentToShipmentDTO)
-                .orElse(null);
+                .orElseThrow(() -> new NotFoundException("Shipment not found with id: " + id));
     }
 
 
@@ -172,27 +210,32 @@ public class ShipmentService {
                 orderRepository.save(existing.getOrder());
             }
             return shipmentMapper.shipmentToShipmentDTO(shipmentRepository.save(existing));
-        }).orElse(null);
+        }).orElseThrow(() -> new NotFoundException("Shipment not found with id: " + id));
     }
 
 
-    public boolean deleteShipment(Long id) {
-        if (shipmentRepository.existsById(id)) {
-            shipmentRepository.deleteById(id);
-            return true;
+    public void deleteShipment(Long id) {
+        if (!shipmentRepository.existsById(id)) {
+            throw new NotFoundException("Shipment not found with id: " + id);
         }
-        return false;
+        shipmentRepository.deleteById(id);
     }
 
     // find shipment by barcode or qrCode
     public ShipmentDTO findByBarcode(String barcode) {
         Shipment shipment = shipmentRepository.findByBarcode(barcode);
-        return shipment != null ? shipmentMapper.shipmentToShipmentDTO(shipment) : null;
+        if (shipment == null) {
+            throw new NotFoundException("Shipment not found with barcode: " + barcode);
+        }
+        return shipmentMapper.shipmentToShipmentDTO(shipment);
     }
 
     public ShipmentDTO findByQrCode(String qrCode) {
         Shipment shipment = shipmentRepository.findByQrCode(qrCode);
-        return shipment != null ? shipmentMapper.shipmentToShipmentDTO(shipment) : null;
+        if (shipment == null) {
+            throw new NotFoundException("Shipment not found with QR code: " + qrCode);
+        }
+        return shipmentMapper.shipmentToShipmentDTO(shipment);
     }
 
 

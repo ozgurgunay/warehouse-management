@@ -7,12 +7,12 @@ import lombok.Data;
 @Data
 public class InventoryAllocationRequestDTO {
 
-    @NotNull(message = "Sipariş ID boş olamaz.")
+    @NotNull(message = "Order ID must not be null.")
     private Long orderId;
 
-    @NotNull(message = "Ürün ID boş olamaz.")
+    @NotNull(message = "Product ID must not be null.")
     private Long productId;
 
-    @Positive(message = "Rezerve edilecek miktar 0'dan büyük olmalıdır.")
+    @Positive(message = "Allocated quantity must be greater than 0.")
     private int quantity;
 }

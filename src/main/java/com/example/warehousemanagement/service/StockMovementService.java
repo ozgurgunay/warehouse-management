@@ -5,6 +5,7 @@ import com.example.warehousemanagement.dto.StockMovementDTO;
 import com.example.warehousemanagement.entity.Product;
 import com.example.warehousemanagement.entity.StockMovement;
 import com.example.warehousemanagement.entity.Warehouse;
+import com.example.warehousemanagement.exception.NotFoundException;
 import com.example.warehousemanagement.mapper.StockMovementMapper;
 import com.example.warehousemanagement.repository.ProductRepository;
 import com.example.warehousemanagement.repository.StockMovementRepository;
@@ -38,7 +39,7 @@ public class StockMovementService {
         // Set associated Product
         if (dto.getProductId() != null) {
             Product product = productRepository.findById(dto.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Product not found with id: " + dto.getProductId()));
+                    .orElseThrow(() -> new NotFoundException("Product not found with id: " + dto.getProductId()));
             stockMovement.setProduct(product);
         } else {
             throw new RuntimeException("Product id is required for stock movement");
@@ -47,7 +48,7 @@ public class StockMovementService {
         // Set associated Warehouse
         if (dto.getWarehouseId() != null) {
             Warehouse warehouse = warehouseRepository.findById(dto.getWarehouseId())
-                    .orElseThrow(() -> new RuntimeException("Warehouse not found with id: " + dto.getWarehouseId()));
+                    .orElseThrow(() -> new NotFoundException("Warehouse not found with id: " + dto.getWarehouseId()));
             stockMovement.setWarehouse(warehouse);
         } else {
             throw new RuntimeException("Warehouse id is required for stock movement");
@@ -61,7 +62,7 @@ public class StockMovementService {
     public StockMovementDTO getStockMovementById(Long id) {
         return stockMovementRepository.findById(id)
                 .map(stockMovementMapper::stockMovementToStockMovementDTO)
-                .orElse(null);
+                .orElseThrow(() -> new NotFoundException("Stock movement not found with id: " + id));
     }
 
     public List<StockMovementDTO> getAllStockMovements() {
@@ -82,28 +83,27 @@ public class StockMovementService {
 //          update associated warehouse if warehouseId is provided
             if(dto.getWarehouseId() != null) {
                 Warehouse warehouse = warehouseRepository.findById(dto.getWarehouseId())
-                        .orElseThrow(() -> new RuntimeException("Warehouse not found with id: " + dto.getWarehouseId()));
+                        .orElseThrow(() -> new NotFoundException("Warehouse not found with id: " + dto.getWarehouseId()));
                 existing.setWarehouse(warehouse);
             }
 
 //            update associated product if productId is provided
             if(dto.getProductId() != null) {
                 Product product = productRepository.findById(dto.getProductId())
-                        .orElseThrow(() -> new RuntimeException("Product not found with id: " + dto.getProductId()));
+                        .orElseThrow(() -> new NotFoundException("Product not found with id: " + dto.getProductId()));
                 existing.setProduct(product);
             }
 
             StockMovement updated = stockMovementRepository.save(existing);
             return stockMovementMapper.stockMovementToStockMovementDTO(updated);
-        }).orElse(null);
+        }).orElseThrow(() -> new NotFoundException("Stock movement not found with id: " + id));
     }
 
-    public boolean deleteStockMovement(Long id) {
-        if (stockMovementRepository.existsById(id)) {
-            stockMovementRepository.deleteById(id);
-            return true;
+    public void deleteStockMovement(Long id) {
+        if (!stockMovementRepository.existsById(id)) {
+            throw new NotFoundException("Stock movement not found with id: " + id);
         }
-        return false;
+        stockMovementRepository.deleteById(id);
     }
 
 }
