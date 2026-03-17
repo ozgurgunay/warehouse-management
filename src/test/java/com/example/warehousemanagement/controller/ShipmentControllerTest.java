@@ -37,8 +37,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * For state-changing requests (POST, PUT, PATCH, DELETE), .with(csrf()) is required
  * so that Spring Security accepts the request (otherwise 403 Forbidden).
- *
- * Detailed explanations (in Turkish): docs/shipment-test-aciklamalari.md
  */
 @WebMvcTest(ShipmentController.class)
 class ShipmentControllerTest {

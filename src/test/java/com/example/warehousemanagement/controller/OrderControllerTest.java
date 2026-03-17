@@ -38,8 +38,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * How to run:
  *   - All tests in this class: mvnw test -Dtest=OrderControllerTest
  *   - Run from IDE: right-click class or method -> Run Tests
- *
- * Detailed explanations (in Turkish): docs/order-test-aciklamalari.md
  */
 @WebMvcTest(OrderController.class)
 @Import(OrderControllerTest.OrderControllerTestConfig.class)
