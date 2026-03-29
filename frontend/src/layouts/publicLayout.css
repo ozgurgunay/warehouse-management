@@ -1,0 +1,130 @@
+/* Landing / public pages light theme */
+.public-theme {
+  width: 100%;
+  min-height: 100vh;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.public-main {
+  width: 100%;
+  min-height: calc(100vh - 64px);
+}
+
+/* Public top navigation (Landing header) */
+.public-topbar {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 22px;
+  position: sticky;
+  top: 0;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  z-index: 10;
+}
+
+.public-topbar-inner {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.public-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.public-logo-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #111827 0%, #1d4ed8 70%, #7c3aed 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  box-shadow: 0 12px 30px rgba(29, 78, 216, 0.2);
+}
+
+.public-logo-text {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #0f172a;
+}
+
+.public-topnav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.public-topnav-link {
+  color: rgba(15, 23, 42, 0.8);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 0;
+  transition: color 150ms ease-out;
+}
+
+.public-topnav-link:hover {
+  color: rgba(15, 23, 42, 1);
+}
+
+.public-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.public-topbar-login {
+  color: rgba(15, 23, 42, 0.8);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.75);
+  transition: transform 150ms ease-out, background 150ms ease-out;
+}
+
+.public-topbar-login:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 1);
+}
+
+.public-topbar-cta {
+  color: #0f172a;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #fbbf24 0%, #fde68a 100%);
+  box-shadow: 0 18px 40px rgba(245, 158, 11, 0.25);
+  transition: transform 150ms ease-out, filter 150ms ease-out;
+}
+
+.public-topbar-cta:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+}
+
+@media (max-width: 920px) {
+  .public-topnav {
+    display: none;
+  }
+}
+

@@ -12,6 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -139,30 +142,45 @@ class ShipmentControllerTest {
     class GetAllShipments {
 
         @Test
-        @DisplayName("returns 200 and list when no filters")
+        @DisplayName("returns 200 and page when no filters")
         void getAllShipments_withNoFilters_returnsOkAndList() throws Exception {
             ShipmentDTO dto = new ShipmentDTO();
             dto.setId(1L);
             dto.setStatus(ShipmentStatus.PENDING.name());
-            when(shipmentService.getShipments(eq(null), eq(null), eq(0), eq(20)))
-                    .thenReturn(List.of(dto));
+            when(shipmentService.getShipmentsPage(
+                            any(Pageable.class),
+                            eq(null),
+                            eq(null),
+                            isNull(),
+                            isNull(),
+                            isNull(),
+                            isNull()))
+                    .thenReturn(new PageImpl<>(List.of(dto), PageRequest.of(0, 15), 1));
 
             mockMvc.perform(get("/shipments")
                             .with(user("test").roles("USER")))
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(jsonPath("$.length()").value(1))
-                    .andExpect(jsonPath("$[0].id").value(1))
-                    .andExpect(jsonPath("$[0].status").value("PENDING"));
+                    .andExpect(jsonPath("$.content.length()").value(1))
+                    .andExpect(jsonPath("$.content[0].id").value(1))
+                    .andExpect(jsonPath("$.content[0].status").value("PENDING"));
 
-            verify(shipmentService).getShipments(null, null, 0, 20);
+            verify(shipmentService)
+                    .getShipmentsPage(any(Pageable.class), isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
         }
 
         @Test
-        @DisplayName("returns 200 and list when status and orderId provided")
+        @DisplayName("returns 200 and page when status and orderId provided")
         void getAllShipments_withStatusAndOrderId_returnsOkAndList() throws Exception {
-            when(shipmentService.getShipments(eq(ShipmentStatus.PENDING), eq(10L), eq(0), eq(10)))
-                    .thenReturn(List.of());
+            when(shipmentService.getShipmentsPage(
+                            any(Pageable.class),
+                            eq(ShipmentStatus.PENDING),
+                            eq(10L),
+                            isNull(),
+                            isNull(),
+                            isNull(),
+                            isNull()))
+                    .thenReturn(new PageImpl<>(List.of(), PageRequest.of(0, 10), 0));
 
             mockMvc.perform(get("/shipments")
                             .with(user("test").roles("USER"))
@@ -171,9 +189,17 @@ class ShipmentControllerTest {
                             .param("page", "0")
                             .param("size", "10"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.length()").value(0));
+                    .andExpect(jsonPath("$.content.length()").value(0));
 
-            verify(shipmentService).getShipments(ShipmentStatus.PENDING, 10L, 0, 10);
+            verify(shipmentService)
+                    .getShipmentsPage(
+                            any(Pageable.class),
+                            eq(ShipmentStatus.PENDING),
+                            eq(10L),
+                            isNull(),
+                            isNull(),
+                            isNull(),
+                            isNull());
         }
     }
 

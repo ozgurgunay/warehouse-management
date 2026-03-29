@@ -1,14 +1,15 @@
 package com.example.warehousemanagement.controller;
 
-import com.example.warehousemanagement.dto.ProductDTO;
-import com.example.warehousemanagement.entity.Product;
+import com.example.warehousemanagement.dto.*;
 import com.example.warehousemanagement.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -20,6 +21,33 @@ public class ProductController {
     @Autowired
     public ProductController(ProductService productService) {
         this.productService = productService;
+    }
+
+    /** KPI strip for catalog page. Must be registered before /{id} routes that would capture "stats". */
+    @GetMapping("/stats")
+    public ResponseEntity<ProductStatsDTO> getProductStats() {
+        return ResponseEntity.ok(productService.getProductStats());
+    }
+
+    /** Paginated catalog rows with search, warehouse, and stock status filters. */
+    @GetMapping("/catalog")
+    public ResponseEntity<ProductCatalogPageDTO> getCatalog(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Long warehouseId,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String stockStatus,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate updatedFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate updatedTo) {
+        return ResponseEntity.ok(productService.getProductCatalog(
+                page, size, search, warehouseId, categoryId, stockStatus, updatedFrom, updatedTo));
+    }
+
+    /** Full detail for modal / detail route (stock distribution + movement history). */
+    @GetMapping("/{id}/detail")
+    public ResponseEntity<ProductDetailDTO> getProductDetail(@PathVariable long id) {
+        return ResponseEntity.ok(productService.getProductDetail(id));
     }
 
     // Create a new product

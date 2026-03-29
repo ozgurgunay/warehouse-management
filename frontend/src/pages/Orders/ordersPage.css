@@ -1,0 +1,340 @@
+/* Sales orders — layout aligned with design mock + design-system tokens */
+
+.ord-page-subtitle {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.55);
+  max-width: 720px;
+  line-height: 1.45;
+}
+
+.ord-page-title {
+  letter-spacing: -0.02em;
+}
+
+.ord-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.ord-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* KPI row — left accent + icon (mock: Total / Pending / In-transit / Completed today) */
+.ord-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 1100px) {
+  .ord-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .ord-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ord-kpi-card {
+  position: relative;
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-border);
+  border-radius: 14px;
+  padding: 16px 18px 16px 20px;
+  box-shadow: 0 4px 18px rgba(2, 6, 23, 0.04);
+  border-left: 4px solid var(--ord-kpi-accent, rgba(13, 148, 136, 0.85));
+  overflow: hidden;
+}
+
+.ord-kpi-card--blue {
+  --ord-kpi-accent: #2563eb;
+}
+.ord-kpi-card--amber {
+  --ord-kpi-accent: #d97706;
+}
+.ord-kpi-card--slate {
+  --ord-kpi-accent: #64748b;
+}
+.ord-kpi-card--teal {
+  --ord-kpi-accent: #0d9488;
+}
+
+.ord-kpi-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.ord-kpi-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ord-kpi-accent, var(--ds-primary));
+  flex-shrink: 0;
+}
+
+.ord-kpi-label {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ds-muted);
+}
+
+.ord-kpi-value {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--ds-text);
+  line-height: 1.1;
+}
+
+.ord-kpi-meta {
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ds-muted);
+}
+
+.ord-kpi-trend {
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #0f766e;
+}
+
+/* Toolbar — same flow as Delivery receipts / Shipments: search → selects → date range */
+.ds-toolbar.ord-toolbar {
+  align-items: center;
+}
+
+.ord-toolbar .ds-search-wrap {
+  flex: 1 1 240px;
+  min-width: 200px;
+}
+
+.ord-status-select {
+  min-width: 160px;
+}
+
+.ord-search-input {
+  width: 100%;
+}
+
+.ord-related-strip {
+  margin: 0 0 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.5);
+}
+
+.ord-related-strip a {
+  color: var(--ds-primary);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.ord-related-strip a:hover {
+  text-decoration: underline;
+}
+
+.ord-related-hint {
+  color: rgba(15, 23, 42, 0.42);
+  font-weight: 600;
+}
+
+.ord-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 13px;
+}
+
+.ord-nowrap {
+  white-space: nowrap;
+}
+
+.ord-id-cell {
+  font-weight: 900;
+  color: #2563eb;
+}
+
+.ord-amt-cell {
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.ord-customer-main {
+  font-weight: 900;
+  color: var(--ds-text);
+  font-size: 13px;
+}
+
+.ord-customer-sub {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.5);
+  max-width: 280px;
+  line-height: 1.35;
+}
+
+.ord-priority {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ds-text);
+}
+
+.ord-priority-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.ord-priority-dot--urgent {
+  background: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+}
+.ord-priority-dot--high {
+  background: #b45309;
+  box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.18);
+}
+.ord-priority-dot--normal {
+  background: #64748b;
+  box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.15);
+}
+
+/* Status badges — mock palette */
+.ord-badge {
+  font-size: 10px;
+}
+
+.ord-badge--pending {
+  background: rgba(239, 68, 68, 0.14);
+  color: #b91c1c;
+}
+
+.ord-badge--picking {
+  background: rgba(249, 115, 22, 0.18);
+  color: #c2410c;
+}
+
+.ord-badge--packed {
+  background: rgba(59, 130, 246, 0.14);
+  color: #1d4ed8;
+}
+
+.ord-badge--shipped {
+  background: rgba(16, 185, 129, 0.16);
+  color: #047857;
+}
+
+.ord-badge--delivered {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+}
+
+.ord-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Detail modal */
+.ord-modal {
+  max-width: 720px;
+}
+
+.ord-modal-sub {
+  margin: 6px 0 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ds-muted);
+}
+
+.ord-detail-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.ord-detail-label {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ds-muted);
+  margin-bottom: 4px;
+}
+
+.ord-detail-value {
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--ds-text);
+}
+
+.ord-detail-block {
+  margin-bottom: 14px;
+}
+
+.ord-detail-p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(15, 23, 42, 0.88);
+  line-height: 1.45;
+}
+
+.ord-items-wrap {
+  margin-top: 8px;
+}
+
+.ord-items-table {
+  min-width: 0;
+}
+
+.ord-status-row {
+  margin-top: 6px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.ord-status-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.ord-status-select {
+  min-width: 200px;
+}
+
+@media (max-width: 720px) {
+  .ord-detail-meta {
+    grid-template-columns: 1fr 1fr;
+  }
+}

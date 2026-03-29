@@ -1,0 +1,73 @@
+/* Stock levels — on-hand lines only; extends design-system */
+
+.sl-related-strip {
+  margin-top: 20px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px dashed var(--ds-border);
+  background: rgba(15, 23, 42, 0.02);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ds-muted);
+}
+
+.sl-related-strip a {
+  font-weight: 900;
+  color: var(--ds-primary);
+  text-decoration: none;
+}
+
+.sl-related-strip a:hover {
+  text-decoration: underline;
+}
+
+.sl-subtitle {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.55);
+  max-width: 720px;
+  line-height: 1.45;
+}
+
+.sl-sku-cell {
+  font-weight: 900;
+  color: #2563eb;
+  font-size: 13px;
+}
+
+.sl-status-pill {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.sl-status--available {
+  background: rgba(22, 163, 74, 0.12);
+  color: #15803d;
+}
+
+.sl-status--reserved {
+  background: rgba(59, 130, 246, 0.14);
+  color: #1d4ed8;
+}
+
+.sl-status--quarantine {
+  background: rgba(245, 158, 11, 0.18);
+  color: #b45309;
+}
+
+.sl-status--damaged,
+.sl-status--missing,
+.sl-status--expired {
+  background: rgba(220, 38, 38, 0.1);
+  color: #b91c1c;
+}
+
+.sl-num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}

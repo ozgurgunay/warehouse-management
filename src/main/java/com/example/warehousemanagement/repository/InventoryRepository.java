@@ -53,4 +53,23 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
      */
     List<Inventory> findByProductIdAndStatusOrderByExpiryDateAsc(Long productId, InventoryStatus status);
 
+    /**
+     * Distinct storage locations that currently hold positive physical quantity.
+     * When {@code warehouseId} is null, counts across all warehouses.
+     */
+    @Query("SELECT COUNT(DISTINCT i.storageLocation.id) FROM Inventory i " +
+            "WHERE i.storageLocation IS NOT NULL AND i.quantity > 0 " +
+            "AND (:warehouseId IS NULL OR i.warehouse.id = :warehouseId)")
+    long countDistinctLocationsWithPositiveStock(@Param("warehouseId") Long warehouseId);
+
+    long countByStorageLocation_Id(Long storageLocationId);
+
+    List<Inventory> findByProduct_Id(Long productId);
+
+    @Query("SELECT i.product.id, COALESCE(SUM(i.quantity - COALESCE(i.quantityAllocated, 0)), 0) " +
+            "FROM Inventory i WHERE i.product.id IN :productIds AND i.status = :status GROUP BY i.product.id")
+    List<Object[]> sumAvailableUnitsGroupedByProduct(
+            @Param("productIds") java.util.List<Long> productIds,
+            @Param("status") InventoryStatus status);
+
 }

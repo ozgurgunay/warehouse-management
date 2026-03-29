@@ -53,6 +53,9 @@ public class VerificationTokenService {
         }
 
         User user = token.getUser();
+        if (user.isDeleted()) {
+            throw new BusinessException("This account is no longer active");
+        }
         user.setEnabled(true);
         userRepository.save(user);
         tokenRepository.delete(token); // Remove the used token

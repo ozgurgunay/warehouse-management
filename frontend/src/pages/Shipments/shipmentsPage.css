@@ -1,0 +1,153 @@
+.sh-subtitle {
+  margin: 8px 0 0;
+  max-width: 760px;
+  color: rgba(15, 23, 42, 0.72);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.sh-header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.sh-toolbar {
+  flex-wrap: wrap;
+}
+
+.sh-carrier-input {
+  min-width: 140px;
+  max-width: 200px;
+}
+
+.sh-tracking-input {
+  min-width: 160px;
+  max-width: 240px;
+}
+
+.sh-order-select {
+  min-width: 180px;
+  max-width: 280px;
+}
+
+.sh-related-strip {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.72);
+}
+
+.sh-related-strip a {
+  color: var(--ds-color-accent, #0d9488);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.sh-related-strip a:hover {
+  text-decoration: underline;
+}
+
+.sh-nowrap {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.sh-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 13px;
+}
+
+.sh-address-preview {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sh-status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sh-status--pending {
+  background: rgba(100, 116, 139, 0.12);
+  color: #475569;
+  border: 1px solid rgba(100, 116, 139, 0.28);
+}
+
+.sh-status--in_transit {
+  background: rgba(37, 99, 235, 0.1);
+  color: #1d4ed8;
+  border: 1px solid rgba(37, 99, 235, 0.28);
+}
+
+.sh-status--out_for_delivery {
+  background: rgba(217, 119, 6, 0.12);
+  color: #b45309;
+  border: 1px solid rgba(217, 119, 6, 0.28);
+}
+
+.sh-status--delivered {
+  background: rgba(13, 148, 136, 0.12);
+  color: #0f766e;
+  border: 1px solid rgba(13, 148, 136, 0.35);
+}
+
+.sh-status--returned {
+  background: rgba(234, 88, 12, 0.1);
+  color: #c2410c;
+  border: 1px solid rgba(234, 88, 12, 0.28);
+}
+
+.sh-status--cancelled {
+  background: rgba(220, 38, 38, 0.1);
+  color: #b91c1c;
+  border: 1px solid rgba(220, 38, 38, 0.28);
+}
+
+.sh-modal-wide {
+  max-width: 720px;
+}
+
+.sh-detail-dl {
+  display: grid;
+  grid-template-columns: minmax(120px, 160px) 1fr;
+  gap: 8px 16px;
+  margin: 0;
+  font-size: 14px;
+}
+
+.sh-detail-dl dt {
+  margin: 0;
+  color: rgba(15, 23, 42, 0.55);
+  font-weight: 700;
+}
+
+.sh-detail-dl dd {
+  margin: 0;
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.sh-detail-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 13px;
+  word-break: break-all;
+}
+
+.sh-detail-break {
+  word-break: break-all;
+}
+
+.sh-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}

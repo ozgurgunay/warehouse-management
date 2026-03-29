@@ -6,4 +6,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
+
+    boolean existsByWarehouseCodeIgnoreCase(String warehouseCode);
+
+    boolean existsByWarehouseCodeIgnoreCaseAndIdNot(String warehouseCode, Long id);
 }

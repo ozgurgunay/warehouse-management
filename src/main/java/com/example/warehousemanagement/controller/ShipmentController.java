@@ -1,14 +1,23 @@
 package com.example.warehousemanagement.controller;
 
 
+import com.example.warehousemanagement.dto.DeliveryReceiptDTO;
+import com.example.warehousemanagement.dto.MarkShippedRequestDTO;
 import com.example.warehousemanagement.dto.ShipmentDTO;
 import com.example.warehousemanagement.entity.enums.ShipmentStatus;
 import com.example.warehousemanagement.service.ShipmentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -30,15 +39,22 @@ public class ShipmentController {
     }
 
 
+    /**
+     * Paginated list with optional filters. Ship date bounds (when set) only match rows with a non-null shipped date.
+     */
     @GetMapping
-    public ResponseEntity<List<ShipmentDTO>> getAllShipments(
+    public ResponseEntity<Page<ShipmentDTO>> getShipments(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size,
             @RequestParam(required = false) ShipmentStatus status,
             @RequestParam(required = false) Long orderId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
-    ) {
-        List<ShipmentDTO> list = shipmentService.getShipments(status, orderId, page, size);
-        return ResponseEntity.ok(list);
+            @RequestParam(required = false) String carrier,
+            @RequestParam(required = false) String tracking,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime shippedFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime shippedTo) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        return ResponseEntity.ok(
+                shipmentService.getShipmentsPage(pageable, status, orderId, carrier, tracking, shippedFrom, shippedTo));
     }
 
 
@@ -70,6 +86,27 @@ public class ShipmentController {
             @PathVariable Long id,
             @RequestParam ShipmentStatus status) {
         ShipmentDTO updated = shipmentService.updateShipmentStatus(id, status);
+        return ResponseEntity.ok(updated);
+    }
+
+    // --- Lifecycle (real-world dispatch) ---
+
+    /**
+     * Hand carrier: mark as in transit and record tracking + shipped timestamp.
+     */
+    @PostMapping("/{id}/ship")
+    public ResponseEntity<ShipmentDTO> markShipped(@PathVariable Long id, @Valid @RequestBody MarkShippedRequestDTO body) {
+        ShipmentDTO updated = shipmentService.markAsShipped(
+                id, body.getCarrier(), body.getTrackingNumber(), body.getShippedAt());
+        return ResponseEntity.status(HttpStatus.OK).body(updated);
+    }
+
+    /**
+     * Proof of delivery: receipt + consume inventory allocations for the order.
+     */
+    @PostMapping("/{id}/deliver")
+    public ResponseEntity<ShipmentDTO> markDelivered(@PathVariable Long id, @Valid @RequestBody DeliveryReceiptDTO dto) {
+        ShipmentDTO updated = shipmentService.markAsDelivered(id, dto);
         return ResponseEntity.ok(updated);
     }
 

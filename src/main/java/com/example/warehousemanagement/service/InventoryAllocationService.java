@@ -1,5 +1,6 @@
 package com.example.warehousemanagement.service;
 
+import com.example.warehousemanagement.dto.InventoryAllocationDTO;
 import com.example.warehousemanagement.entity.Inventory;
 import com.example.warehousemanagement.entity.InventoryAllocation;
 import com.example.warehousemanagement.entity.Order;
@@ -7,10 +8,13 @@ import com.example.warehousemanagement.entity.enums.AllocationStatus;
 import com.example.warehousemanagement.entity.enums.InventoryStatus;
 import com.example.warehousemanagement.exception.InsufficientStockException;
 import com.example.warehousemanagement.exception.NotFoundException;
+import com.example.warehousemanagement.mapper.InventoryAllocationMapper;
 import com.example.warehousemanagement.repository.InventoryAllocationRepository;
 import com.example.warehousemanagement.repository.InventoryRepository;
 import com.example.warehousemanagement.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,11 +28,29 @@ public class InventoryAllocationService {
     private final InventoryRepository inventoryRepository;
     private final InventoryAllocationRepository allocationRepository;
     private final OrderRepository orderRepository;
+    private final InventoryAllocationMapper inventoryAllocationMapper;
 
     /**
      * Allocates (reserves) stock for a given order.
      * Uses FEFO (First Expiring First Out) strategy by prioritizing items with the earliest expiry date.
      */
+    /**
+     * Paginated list with optional filters; newest allocation first.
+     */
+    @Transactional(readOnly = true)
+    public Page<InventoryAllocationDTO> getAllocations(
+            Pageable pageable,
+            Long warehouseId,
+            Long productId,
+            Long orderId,
+            AllocationStatus status,
+            LocalDateTime dateFrom,
+            LocalDateTime dateTo) {
+        return allocationRepository
+                .search(warehouseId, productId, orderId, status, dateFrom, dateTo, pageable)
+                .map(inventoryAllocationMapper::toDto);
+    }
+
     @Transactional
     public void allocateStockForOrder(Long orderId, Long productId, int requestedQuantity) {
 

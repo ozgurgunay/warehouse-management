@@ -1,0 +1,36 @@
+/* Storage Locations — KPI icon accents (design system base + tint) */
+.sl-stat-icon--blue {
+  background: rgba(59, 130, 246, 0.12);
+  color: #2563eb;
+}
+
+.sl-stat-icon--slate {
+  background: rgba(100, 116, 139, 0.14);
+  color: #475569;
+}
+
+.sl-stat-icon--teal {
+  background: rgba(13, 148, 136, 0.14);
+  color: #0f766e;
+}
+
+.sl-stat-icon--orange {
+  background: rgba(249, 115, 22, 0.16);
+  color: #c2410c;
+}
+
+.sl-page-subtitle {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.55);
+  max-width: 640px;
+  line-height: 1.45;
+}
+
+.sl-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}

@@ -13,11 +13,12 @@ import com.example.warehousemanagement.repository.DeliveryReceiptRepository;
 import com.example.warehousemanagement.repository.OrderRepository;
 import com.example.warehousemanagement.repository.ShipmentRepository;
 import com.example.warehousemanagement.repository.WarehousePackageRepository;
+import com.example.warehousemanagement.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -54,6 +55,7 @@ public class ShipmentService {
     /**
      * creates a shipment for a specific order. Status is set to PENDING
      */
+    @Transactional
     public ShipmentDTO createShipment(ShipmentDTO dto) {
         Shipment shipment = shipmentMapper.shipmentDTOToShipment(dto);
         if (dto.getOrderId() != null)
@@ -71,28 +73,23 @@ public class ShipmentService {
     }
 
     /**
-     * Returns paginated shipments with optional filtering by status and orderId.
+     * Paginated list with filters; newest shipment id first. Carrier/tracking use case-insensitive substring match.
      */
-    public List<ShipmentDTO> getShipments(ShipmentStatus status, Long orderId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-
-        if (orderId != null) {
-            // Filter by order first, then optionally by status, and page in memory.
-            List<Shipment> allForOrder = shipmentRepository.findByOrderId(orderId);
-            return allForOrder.stream()
-                    .filter(s -> status == null || s.getStatus() == status)
-                    .skip((long) page * size)
-                    .limit(size)
-                    .map(shipmentMapper::shipmentToShipmentDTO)
-                    .collect(Collectors.toList());
-        } else {
-            // No order filter: use DB paging, then optionally filter by status.
-            Page<Shipment> basePage = shipmentRepository.findAll(pageable);
-            return basePage.stream()
-                    .filter(s -> status == null || s.getStatus() == status)
-                    .map(shipmentMapper::shipmentToShipmentDTO)
-                    .collect(Collectors.toList());
-        }
+    @Transactional(readOnly = true)
+    public Page<ShipmentDTO> getShipmentsPage(
+            Pageable pageable,
+            ShipmentStatus status,
+            Long orderId,
+            String carrier,
+            String tracking,
+            LocalDateTime shippedFrom,
+            LocalDateTime shippedTo) {
+        String c = (carrier != null && !carrier.isBlank()) ? carrier.trim() : null;
+        String t = (tracking != null && !tracking.isBlank()) ? tracking.trim() : null;
+        String statusName = status != null ? status.name() : null;
+        return shipmentRepository
+                .search(statusName, orderId, c, t, shippedFrom, shippedTo, pageable)
+                .map(shipmentMapper::shipmentToShipmentDTO);
     }
 
     public ShipmentDTO getShipmentById(Long id) {
@@ -103,8 +100,15 @@ public class ShipmentService {
 
 
     /* marks a shipment as shipped, sets tracking info, shipped date, and updates related order's shipment status */
+    @Transactional
     public ShipmentDTO markAsShipped(Long shipmentId, String carrier, String trackingNumber, LocalDateTime shippedDate) {
         return shipmentRepository.findById(shipmentId).map(shipment -> {
+            if (shipment.getStatus() == ShipmentStatus.DELIVERED || shipment.getStatus() == ShipmentStatus.CANCELLED) {
+                throw new BusinessException("Cannot ship a shipment that is already delivered or cancelled.");
+            }
+            if (shipment.getStatus() == ShipmentStatus.RETURNED) {
+                throw new BusinessException("Cannot ship a returned shipment.");
+            }
             shipment.setStatus(ShipmentStatus.IN_TRANSIT);
             shipment.setCarrier(carrier);
             shipment.setTrackingNumber(trackingNumber);
@@ -155,7 +159,7 @@ public class ShipmentService {
 
 
     public List<ShipmentDTO> getShipmentsByOrderId(Long orderId) {
-        return shipmentRepository.findByOrderId(orderId)
+        return shipmentRepository.findByOrder_Id(orderId)
                 .stream()
                 .map(shipmentMapper::shipmentToShipmentDTO)
                 .collect(Collectors.toList());

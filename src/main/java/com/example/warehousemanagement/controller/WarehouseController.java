@@ -1,6 +1,7 @@
 package com.example.warehousemanagement.controller;
 
 import com.example.warehousemanagement.dto.WarehouseDTO;
+import com.example.warehousemanagement.dto.WarehouseStatsDTO;
 import com.example.warehousemanagement.service.WarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,12 @@ public class WarehouseController {
     public ResponseEntity<WarehouseDTO> createWarehouse(@RequestBody WarehouseDTO dto) {
         WarehouseDTO created = warehouseService.createWarehouse(dto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
+    }
+
+    /** Must be registered before GET /{id} so "stats" is not parsed as an id. */
+    @GetMapping("/stats")
+    public ResponseEntity<WarehouseStatsDTO> getWarehouseStats() {
+        return new ResponseEntity<>(warehouseService.getWarehouseStats(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

@@ -1,0 +1,187 @@
+/* Dashboard — ds-page + design tokens (see docs/DESIGN_SYSTEM.md) */
+
+.dash-page {
+  max-width: 1280px;
+}
+
+.dash-page-subtitle {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.55);
+  max-width: 720px;
+  line-height: 1.45;
+}
+
+.dash-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.dash-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 960px) {
+  .dash-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .dash-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dash-kpi-card {
+  border-left: 4px solid var(--dash-kpi-accent, var(--ds-primary));
+}
+
+.dash-kpi-card--teal {
+  --dash-kpi-accent: #0d9488;
+}
+.dash-kpi-card--blue {
+  --dash-kpi-accent: #2563eb;
+}
+.dash-kpi-card--amber {
+  --dash-kpi-accent: #d97706;
+}
+.dash-kpi-card--violet {
+  --dash-kpi-accent: #7c3aed;
+}
+.dash-kpi-card--slate {
+  --dash-kpi-accent: #64748b;
+}
+.dash-kpi-card--rose {
+  --dash-kpi-accent: #e11d48;
+}
+
+.dash-kpi-sub {
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.48);
+  line-height: 1.35;
+}
+
+.dash-two-col {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.85fr);
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .dash-two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dash-panel {
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: 0 4px 18px rgba(2, 6, 23, 0.04);
+}
+
+.dash-panel-title {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ds-muted);
+}
+
+.dash-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.dash-panel-head .dash-panel-title {
+  margin: 0;
+}
+
+.dash-movement-type {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: rgba(15, 23, 42, 0.04);
+  color: var(--ds-text);
+}
+
+.dash-movement-type--in {
+  background: rgba(13, 148, 136, 0.12);
+  border-color: rgba(13, 148, 136, 0.25);
+  color: #0f766e;
+}
+
+.dash-movement-type--out {
+  background: rgba(225, 29, 72, 0.08);
+  border-color: rgba(225, 29, 72, 0.22);
+  color: #be123c;
+}
+
+.dash-movement-type--tr {
+  background: rgba(37, 99, 235, 0.1);
+  border-color: rgba(37, 99, 235, 0.22);
+  color: #1d4ed8;
+}
+
+.dash-quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.dash-alert-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--ds-border);
+}
+
+.dash-alert-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.dash-alert-row:first-child {
+  padding-top: 0;
+}
+
+.dash-num {
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-error-banner {
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  background: rgba(220, 38, 38, 0.06);
+  color: #991b1b;
+  font-weight: 800;
+  font-size: 13px;
+}
