@@ -1,0 +1,87 @@
+.sm-subtitle {
+  margin: 8px 0 0;
+  max-width: 720px;
+  color: rgba(15, 23, 42, 0.72);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.sm-header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.sm-toolbar {
+  flex-wrap: wrap;
+}
+
+.sm-product-select {
+  min-width: 220px;
+  max-width: 320px;
+}
+
+.sm-related-strip {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.72);
+}
+
+.sm-related-strip a {
+  color: var(--ds-color-accent, #0d9488);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.sm-related-strip a:hover {
+  text-decoration: underline;
+}
+
+.sm-nowrap {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.sm-sku {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 13px;
+}
+
+.sm-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.sm-qty {
+  font-weight: 800;
+}
+
+.sm-type-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sm-type--inbound {
+  background: rgba(13, 148, 136, 0.12);
+  color: #0f766e;
+  border: 1px solid rgba(13, 148, 136, 0.35);
+}
+
+.sm-type--outbound {
+  background: rgba(220, 38, 38, 0.1);
+  color: #b91c1c;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+.sm-type--transfer {
+  background: rgba(37, 99, 235, 0.1);
+  color: #1d4ed8;
+  border: 1px solid rgba(37, 99, 235, 0.28);
+}

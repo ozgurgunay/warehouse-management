@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -40,14 +41,16 @@ public class RoleController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RoleDTO> updateRole(@PathVariable Long id, @RequestBody RoleDTO roleDTO) {
-        RoleDTO updated = roleService.updateRole(id, roleDTO);
+    public ResponseEntity<RoleDTO> updateRole(@PathVariable Long id,
+                                              @RequestBody RoleDTO roleDTO,
+                                              Principal principal) {
+        RoleDTO updated = roleService.updateRole(id, roleDTO, principal.getName());
         return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
-        roleService.deleteRole(id);
+    public ResponseEntity<Void> deleteRole(@PathVariable Long id, Principal principal) {
+        roleService.softDeleteRole(id, principal.getName());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

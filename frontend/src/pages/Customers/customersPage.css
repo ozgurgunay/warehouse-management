@@ -1,0 +1,71 @@
+/* Customers page — layout helpers on top of design-system */
+
+.cu-page-header {
+  align-items: flex-start;
+}
+
+@media (max-width: 720px) {
+  .cu-page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.cu-page-subtitle {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.55);
+  max-width: 720px;
+  line-height: 1.45;
+}
+
+.cu-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.cu-stat-grid {
+  margin-bottom: 4px;
+}
+
+@media (max-width: 900px) {
+  .cu-stat-grid.ds-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .cu-stat-grid.ds-stat-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cu-toolbar {
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+.cu-search {
+  max-width: min(520px, 100%);
+  padding-left: 12px;
+}
+
+.cu-nowrap {
+  white-space: nowrap;
+}
+
+.cu-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 12px;
+}
+
+.cu-address {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

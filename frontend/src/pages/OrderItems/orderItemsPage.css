@@ -1,0 +1,124 @@
+/* Order items — aligned with Customers / Delivery receipts + design-system */
+
+.oi-page-header {
+  align-items: flex-start;
+}
+
+@media (max-width: 720px) {
+  .oi-page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.oi-page-subtitle {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.55);
+  max-width: 720px;
+  line-height: 1.45;
+}
+
+.oi-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.oi-stat-grid {
+  margin-bottom: 4px;
+}
+
+@media (max-width: 900px) {
+  .oi-stat-grid.ds-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .oi-stat-grid.ds-stat-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.oi-toolbar {
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+.oi-toolbar .ds-search-wrap {
+  flex: 1 1 240px;
+  min-width: 200px;
+}
+
+.oi-order-select {
+  min-width: 200px;
+}
+
+.oi-product-select {
+  min-width: 220px;
+}
+
+.oi-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 12px;
+}
+
+.oi-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.oi-product-main {
+  font-weight: 900;
+  font-size: 13px;
+  color: var(--ds-text);
+}
+
+.oi-product-sub {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.5);
+}
+
+.oi-related-strip {
+  margin: 0 0 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.5);
+}
+
+.oi-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+}
+
+@media (max-width: 560px) {
+  .oi-modal-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.oi-modal-field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ds-muted);
+  margin-bottom: 6px;
+}
+
+.oi-modal-field input,
+.oi-modal-field select {
+  width: 100%;
+}
+
+.oi-modal-field--full {
+  grid-column: 1 / -1;
+}

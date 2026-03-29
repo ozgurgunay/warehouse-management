@@ -14,6 +14,17 @@ public class ProductDTO {
     private String description;
     // Relation: Category
     private Long categoryId;
+    /** Populated on read responses. */
+    private String categoryName;
+
+    private String manufacturer;
+    private String dimensionsText;
+    private Double weightKg;
+    private String material;
+    private String operatingTempRange;
+    private String ipRating;
+    private String imageUrl;
+    private Integer lowStockThreshold;
 
     private String createdBy;
     private String updatedBy;

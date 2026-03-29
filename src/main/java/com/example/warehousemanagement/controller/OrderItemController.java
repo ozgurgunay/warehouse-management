@@ -20,6 +20,11 @@ public class OrderItemController {
         this.orderItemService = orderItemService;
     }
 
+    /** List all order lines (for reporting / order-items UI). */
+    @GetMapping
+    public ResponseEntity<List<OrderItemDTO>> getAllOrderItems() {
+        return ResponseEntity.ok(orderItemService.getAllOrderItems());
+    }
 
     // Add a new item to an order
     @PostMapping

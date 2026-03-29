@@ -1,0 +1,54 @@
+/* Customer create/edit modal — aligned with design-system tokens */
+
+.cu-modal-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ds-muted);
+  margin-bottom: 6px;
+}
+
+.cu-modal-input,
+.cu-modal-textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(248, 250, 252, 0.95);
+  font-weight: 700;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--ds-text);
+}
+
+.cu-modal-textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.cu-modal-input:focus,
+.cu-modal-textarea:focus {
+  outline: none;
+  border-color: rgba(10, 90, 90, 0.35);
+  background: #fff;
+}
+
+.cu-modal-field {
+  margin-bottom: 14px;
+}
+
+.cu-modal-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 560px) {
+  .cu-modal-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}

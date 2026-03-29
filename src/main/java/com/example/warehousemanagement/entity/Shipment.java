@@ -24,7 +24,9 @@ public class Shipment {
     @Enumerated(EnumType.STRING)
     private ShipmentStatus status;
 
+    @Column(length = 255)
     private String carrier;            // e.g. "DHL", "UPS"
+    @Column(length = 255)
     private String trackingNumber;     // Provided by carrier
 
     private LocalDateTime shippedDate;

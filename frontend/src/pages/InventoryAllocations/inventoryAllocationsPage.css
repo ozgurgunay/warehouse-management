@@ -1,0 +1,103 @@
+.ia-subtitle {
+  margin: 8px 0 0;
+  max-width: 760px;
+  color: rgba(15, 23, 42, 0.72);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.ia-header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ia-toolbar {
+  flex-wrap: wrap;
+}
+
+.ia-product-select {
+  min-width: 220px;
+  max-width: 320px;
+}
+
+.ia-order-select {
+  min-width: 180px;
+  max-width: 280px;
+}
+
+.ia-related-strip {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.72);
+}
+
+.ia-related-strip a {
+  color: var(--ds-color-accent, #0d9488);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.ia-related-strip a:hover {
+  text-decoration: underline;
+}
+
+.ia-nowrap {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.ia-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 13px;
+}
+
+.ia-sku {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 13px;
+}
+
+.ia-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.ia-qty {
+  font-weight: 800;
+}
+
+.ia-status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ia-status--active {
+  background: rgba(37, 99, 235, 0.1);
+  color: #1d4ed8;
+  border: 1px solid rgba(37, 99, 235, 0.28);
+}
+
+.ia-status--released {
+  background: rgba(100, 116, 139, 0.12);
+  color: #475569;
+  border: 1px solid rgba(100, 116, 139, 0.28);
+}
+
+.ia-status--used {
+  background: rgba(13, 148, 136, 0.12);
+  color: #0f766e;
+  border: 1px solid rgba(13, 148, 136, 0.35);
+}
+
+.ia-status--expired {
+  background: rgba(217, 119, 6, 0.12);
+  color: #b45309;
+  border: 1px solid rgba(217, 119, 6, 0.35);
+}

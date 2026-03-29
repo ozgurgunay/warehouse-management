@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,6 +42,7 @@ public class InventoryService {
         this.inventoryMapper = inventoryMapper;
     }
 
+    @Transactional
     public InventoryDTO createInventory(InventoryDTO dto) {
 
         Inventory inventory = inventoryMapper.inventoryDTOToInventory(dto);
@@ -62,10 +64,11 @@ public class InventoryService {
             throw new IllegalArgumentException("Warehouse ID is required");
         }
 
-        // Set associated StorageLocation (optional)
+        // Set associated StorageLocation (optional); must belong to the same warehouse
         if (dto.getStorageLocationId() != null) {
             StorageLocation location = storageLocationRepository.findById(dto.getStorageLocationId())
                     .orElseThrow(() -> new NotFoundException("StorageLocation not found with id: " + dto.getStorageLocationId()));
+            assertStorageLocationBelongsToWarehouse(location, inventory.getWarehouse());
             inventory.setStorageLocation(location);
         }
 
@@ -89,6 +92,7 @@ public class InventoryService {
     /**
      * Returns paginated inventories with optional filtering by product, warehouse and status.
      */
+    @Transactional(readOnly = true)
     public List<InventoryDTO> getInventories(Long productId,
                                              Long warehouseId,
                                              InventoryStatus status,
@@ -117,6 +121,7 @@ public class InventoryService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public InventoryDTO updateInventory(Long id, InventoryDTO dto) {
         return inventoryRepository.findById(id).map(existing -> {
             existing.setQuantity(dto.getQuantity());
@@ -139,13 +144,13 @@ public class InventoryService {
                 existing.setWarehouse(warehouse);
             }
 
-            // update storageLocation
+            // update storageLocation (must match warehouse on the line after any warehouse change)
             if (dto.getStorageLocationId() != null) {
                 StorageLocation location = storageLocationRepository.findById(dto.getStorageLocationId())
                         .orElseThrow(() -> new NotFoundException("StorageLocation not found with id: " + dto.getStorageLocationId()));
+                assertStorageLocationBelongsToWarehouse(location, existing.getWarehouse());
                 existing.setStorageLocation(location);
             } else {
-                // Optionally set to null if not provided
                 existing.setStorageLocation(null);
             }
 
@@ -230,6 +235,16 @@ public class InventoryService {
         inventoryRepository.save(target);
     }
 
+    private static void assertStorageLocationBelongsToWarehouse(StorageLocation location, Warehouse warehouse) {
+        if (location.getWarehouse() == null || warehouse == null) {
+            throw new IllegalStateException("Storage location and warehouse must be loaded for validation.");
+        }
+        if (!location.getWarehouse().getId().equals(warehouse.getId())) {
+            throw new IllegalArgumentException(
+                    "Storage location must belong to the same warehouse as the inventory line.");
+        }
+    }
+
     private void validateStatusChange(Inventory source, int amount, InventoryStatus targetStatus) {
         if (source.getStatus() == targetStatus) {
             throw new IllegalArgumentException("Target status cannot be the same as current status.");
@@ -250,6 +265,60 @@ public class InventoryService {
                 InventoryStatus.AVAILABLE
         );
         return availableStock >= requestedAmount;
+    }
+
+    /**
+     * Applies a signed change to physical quantity on an AVAILABLE line for the product/warehouse.
+     * Prefers a row with no storage location (aggregate "unlocated" stock); otherwise the lowest id.
+     * Creates a new unlocated line when there is no row and {@code deltaQuantity} is positive.
+     * <p>
+     * Intended to run in the same transaction as creating a {@code StockMovement} audit row.
+     */
+    @Transactional
+    public void applyPhysicalQuantityDeltaForStockMovement(Long productId, Long warehouseId, int deltaQuantity) {
+        if (deltaQuantity == 0) {
+            return;
+        }
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product not found with id: " + productId));
+        Warehouse warehouse = warehouseRepository.findById(warehouseId)
+                .orElseThrow(() -> new NotFoundException("Warehouse not found with id: " + warehouseId));
+
+        List<Inventory> rows = inventoryRepository.findByProductIdAndWarehouseIdAndStatus(
+                productId, warehouseId, InventoryStatus.AVAILABLE);
+
+        if (rows.isEmpty()) {
+            if (deltaQuantity < 0) {
+                throw new InsufficientStockException("No inventory to reduce for this product and warehouse.");
+            }
+            Inventory created = new Inventory();
+            created.setProduct(product);
+            created.setWarehouse(warehouse);
+            created.setQuantity(deltaQuantity);
+            created.setQuantityAllocated(0);
+            created.setStatus(InventoryStatus.AVAILABLE);
+            inventoryRepository.save(created);
+            return;
+        }
+
+        Inventory target = rows.stream()
+                .filter(i -> i.getStorageLocation() == null)
+                .min(Comparator.comparing(Inventory::getId))
+                .orElseGet(() -> rows.stream()
+                        .min(Comparator.comparing(Inventory::getId))
+                        .orElseThrow());
+
+        int allocated = target.getQuantityAllocated() != null ? target.getQuantityAllocated() : 0;
+        int newQty = target.getQuantity() + deltaQuantity;
+        if (newQty < 0) {
+            throw new InsufficientStockException("Not enough physical stock for this warehouse.");
+        }
+        if (newQty < allocated) {
+            throw new InsufficientStockException(
+                    "Physical quantity would drop below reserved quantity; release allocations first.");
+        }
+        target.setQuantity(newQty);
+        inventoryRepository.save(target);
     }
 
 }

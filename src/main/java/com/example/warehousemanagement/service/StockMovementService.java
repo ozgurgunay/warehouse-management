@@ -7,14 +7,17 @@ import com.example.warehousemanagement.entity.StockMovement;
 import com.example.warehousemanagement.entity.Warehouse;
 import com.example.warehousemanagement.exception.NotFoundException;
 import com.example.warehousemanagement.mapper.StockMovementMapper;
+import com.example.warehousemanagement.entity.enums.MovementType;
 import com.example.warehousemanagement.repository.ProductRepository;
 import com.example.warehousemanagement.repository.StockMovementRepository;
 import com.example.warehousemanagement.repository.WarehouseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @Service
 public class StockMovementService {
@@ -23,15 +26,23 @@ public class StockMovementService {
     private final StockMovementMapper stockMovementMapper;
     private final WarehouseRepository warehouseRepository;
     private final ProductRepository productRepository;
+    private final InventoryService inventoryService;
 
     @Autowired
-    public StockMovementService(StockMovementRepository stockMovementRepository, StockMovementMapper stockMovementMapper, WarehouseRepository warehouseRepository, ProductRepository productRepository) {
+    public StockMovementService(
+            StockMovementRepository stockMovementRepository,
+            StockMovementMapper stockMovementMapper,
+            WarehouseRepository warehouseRepository,
+            ProductRepository productRepository,
+            InventoryService inventoryService) {
         this.stockMovementRepository = stockMovementRepository;
         this.stockMovementMapper = stockMovementMapper;
         this.warehouseRepository = warehouseRepository;
         this.productRepository = productRepository;
+        this.inventoryService = inventoryService;
     }
 
+    @Transactional
     public StockMovementDTO createStockMovement(StockMovementDTO dto) {
         // Convert DTO to entity using MapStruct
         StockMovement stockMovement = stockMovementMapper.stockMovementDTOToStockMovement(dto);
@@ -56,6 +67,8 @@ public class StockMovementService {
 
         // Save the stock movement record
         StockMovement saved = stockMovementRepository.save(stockMovement);
+        inventoryService.applyPhysicalQuantityDeltaForStockMovement(
+                dto.getProductId(), dto.getWarehouseId(), dto.getQuantityChange());
         return stockMovementMapper.stockMovementToStockMovementDTO(saved);
     }
 
@@ -65,10 +78,20 @@ public class StockMovementService {
                 .orElseThrow(() -> new NotFoundException("Stock movement not found with id: " + id));
     }
 
-    public List<StockMovementDTO> getAllStockMovements() {
-        return stockMovementRepository.findAll().stream()
-                .map(stockMovementMapper::stockMovementToStockMovementDTO)
-                .collect(Collectors.toList());
+    /**
+     * Paginated list with optional filters; newest first.
+     */
+    @Transactional(readOnly = true)
+    public Page<StockMovementDTO> getStockMovements(
+            Pageable pageable,
+            Long warehouseId,
+            Long productId,
+            MovementType movementType,
+            LocalDateTime dateFrom,
+            LocalDateTime dateTo) {
+        return stockMovementRepository
+                .search(warehouseId, productId, movementType, dateFrom, dateTo, pageable)
+                .map(stockMovementMapper::stockMovementToStockMovementDTO);
     }
 
     public StockMovementDTO updateStockMovement(Long id, StockMovementDTO dto) {

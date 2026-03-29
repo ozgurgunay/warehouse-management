@@ -2,6 +2,7 @@ package com.example.warehousemanagement.controller;
 
 
 import com.example.warehousemanagement.dto.StorageLocationDTO;
+import com.example.warehousemanagement.dto.StorageLocationStatsDTO;
 import com.example.warehousemanagement.service.StorageLocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,13 @@ public class StorageLocationController {
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
+    /** Must be registered before GET /{id} so "stats" is not parsed as an id. */
+    @GetMapping("/stats")
+    public ResponseEntity<StorageLocationStatsDTO> getStorageLocationStats(
+            @RequestParam(required = false) Long warehouseId) {
+        return new ResponseEntity<>(storageLocationService.getStorageLocationStats(warehouseId), HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<StorageLocationDTO> getStorageLocationById(@PathVariable Long id) {
         StorageLocationDTO dto = storageLocationService.getStorageLocationById(id);
@@ -35,8 +43,9 @@ public class StorageLocationController {
     }
 
     @GetMapping
-    public ResponseEntity<List<StorageLocationDTO>> getAllStorageLocations() {
-        List<StorageLocationDTO> storageLocationDTOS = storageLocationService.getAllStorageLocations();
+    public ResponseEntity<List<StorageLocationDTO>> getAllStorageLocations(
+            @RequestParam(required = false) Long warehouseId) {
+        List<StorageLocationDTO> storageLocationDTOS = storageLocationService.getAllStorageLocations(warehouseId);
         return new ResponseEntity<>(storageLocationDTOS, HttpStatus.OK);
     }
 

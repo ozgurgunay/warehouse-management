@@ -16,6 +16,12 @@ public class StockMovementDTO {
     private Long productId;
     private Long warehouseId;
 
+    /** Read-only: populated on GET for list/detail UI. */
+    private String productSku;
+    private String productName;
+    private String warehouseCode;
+    private String warehouseName;
+
     private String createdBy;
     private String updatedBy;
 }

@@ -11,6 +11,10 @@ public class ShipmentDTO {
 
     private Long id;
     private Long orderId;                        // reference to Order
+    /** Read-only: order placed-at for list UI. */
+    private LocalDateTime orderDate;
+    /** Read-only: sold-to / customer display name. */
+    private String customerName;
     private String status;                       // shipmentStatus as String
     private String carrier;                      // e.g., "DHL", "UPS"
     private String trackingNumber;               // provided by carrier

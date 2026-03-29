@@ -1,0 +1,62 @@
+.dr-subtitle {
+  margin: 8px 0 0;
+  max-width: 760px;
+  color: rgba(15, 23, 42, 0.72);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.dr-header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.dr-toolbar {
+  flex-wrap: wrap;
+}
+
+.dr-shipment-select {
+  min-width: 200px;
+  max-width: 320px;
+}
+
+.dr-search {
+  min-width: 220px;
+  max-width: 320px;
+}
+
+.dr-related-strip {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.72);
+}
+
+.dr-related-strip a {
+  color: var(--ds-color-accent, #0d9488);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.dr-related-strip a:hover {
+  text-decoration: underline;
+}
+
+.dr-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 13px;
+}
+
+.dr-nowrap {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.dr-note {
+  max-width: 260px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
