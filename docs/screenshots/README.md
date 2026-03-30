@@ -1,6 +1,4 @@
-# Screenshot checklist (GitHub README)
 
-Place PNG or WebP files in this folder using the names below so the root `README.md` references stay valid.
 
 ## How to capture
 
@@ -13,7 +11,7 @@ Place PNG or WebP files in this folder using the names below so the root `README
 
 | File | Screen | Route |
 |------|--------|--------|
-| `Screenshot_4.png` | Public landing (hero, core modules) | `/` |
+| `Screenshot_4.png` | Public Homepage (hero, core modules) | `/` |
 | `Screenshot_5.png` | Login | `/login` |
 | `Screenshot_6.png` | Dashboard (KPIs, recent movements, quick actions) | `/app` |
 | `Screenshot_7.png` | Warehouses list (table, filters) | `/warehouses` |
@@ -22,7 +20,6 @@ Place PNG or WebP files in this folder using the names below so the root `README
 | `Screenshot_10.png` | Shipments with **Create shipment** modal open | `/shipments` |
 | `Screenshot_11.png` | Admin — users & roles | `/admin` |
 
-Not captured in this set (add new files if needed): stock levels (`/inventory`), orders (`/orders`), profile (`/account/profile`), etc.
 
 ## Optional naming (if you add more)
 
@@ -42,4 +39,3 @@ Not captured in this set (add new files if needed): stock levels (`/inventory`),
 | `14-order-items.png` | `/order-items` |
 | `15-storage-locations.png` | `/storage-locations` |
 
-After adding images, uncomment or add image tags in the **Screenshots** section of the root `README.md`.
