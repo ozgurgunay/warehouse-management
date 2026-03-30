@@ -11,16 +11,18 @@ Place PNG or WebP files in this folder using the names below so the root `README
 
 ## Current files (in repo)
 
-| File | Suggested screen (match README) |
-|------|--------------------------------|
-| `Screenshot_4.png` | Warehouses (`/warehouses`) |
-| `Screenshot_5.png` | Products (`/products`) |
-| `Screenshot_6.png` | Stock levels (`/inventory`) |
-| `Screenshot_7.png` | Orders (`/orders`) |
-| `Screenshot_8.png` | Shipments (`/shipments`) |
-| `Screenshot_9.png` | Admin (`/admin`) |
-| `Screenshot_10.png` | Profile (`/account/profile`) |
-| `Screenshot_11.png` | Extra (e.g. categories, landing) — rename caption in root `README.md` if you prefer |
+| File | Screen | Route |
+|------|--------|--------|
+| `Screenshot_4.png` | Public landing (hero, core modules) | `/` |
+| `Screenshot_5.png` | Login | `/login` |
+| `Screenshot_6.png` | Dashboard (KPIs, recent movements, quick actions) | `/app` |
+| `Screenshot_7.png` | Warehouses list (table, filters) | `/warehouses` |
+| `Screenshot_8.png` | Same area with **Create warehouse** modal open | `/warehouses` |
+| `Screenshot_9.png` | Products catalog | `/products` |
+| `Screenshot_10.png` | Shipments with **Create shipment** modal open | `/shipments` |
+| `Screenshot_11.png` | Admin — users & roles | `/admin` |
+
+Not captured in this set (add new files if needed): stock levels (`/inventory`), orders (`/orders`), profile (`/account/profile`), etc.
 
 ## Optional naming (if you add more)
 
