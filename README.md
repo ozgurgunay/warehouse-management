@@ -52,35 +52,35 @@ A full-stack **warehouse operations** web application: catalog, inventory, order
 
 ## Screenshots
 
-### Warehouses
+### Homepage
 
 ![Warehouses list](docs/screenshots/Screenshot_4.png)
 
-### Products
+### Log in
 
 ![Product catalog](docs/screenshots/Screenshot_5.png)
 
-### Stock levels
+### Dashboard
 
 ![Stock levels](docs/screenshots/Screenshot_6.png)
 
-### Orders
+### Warehouses
 
 ![Orders](docs/screenshots/Screenshot_7.png)
 
-### Shipments
+### Warehouses Create pop-up
 
 ![Shipments](docs/screenshots/Screenshot_8.png)
 
-### Admin
+### Products Catalog
 
 ![Admin](docs/screenshots/Screenshot_9.png)
 
-### Profile
+### Shipment Create pop-up
 
 ![Profile](docs/screenshots/Screenshot_10.png)
 
-### Additional
+### Admin
 
 ![Additional screen](docs/screenshots/Screenshot_11.png)
 
