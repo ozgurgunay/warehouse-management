@@ -144,11 +144,6 @@ warehouse-management/
 └── README.md
 ```
 
----
-
-## License
-
-Add a `LICENSE` file if you want to specify terms. Until then, all rights reserved unless you state otherwise.
 
 ---
 
